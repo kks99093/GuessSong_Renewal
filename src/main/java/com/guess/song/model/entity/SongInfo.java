@@ -27,13 +27,27 @@ public class SongInfo {
 	
 	private String answer;
 	
+	//추후 추가
 	private String hint;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	private SongBoard songBoard;
+	
+	//리뉴얼 추가
+	private String category;
+	
+	private int count;
+	
+	private int beforYears;
+	
+	private int afterYears;
+	
 	
 	@Column
 	@CreationTimestamp
 	private Timestamp createTime;
+	
+	
+	//없애햐함
+	@ManyToOne(fetch = FetchType.LAZY)
+	private SongBoard songBoard;
 
 }

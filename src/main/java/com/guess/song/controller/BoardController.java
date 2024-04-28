@@ -26,14 +26,10 @@ import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.model.param.UserInfoParam;
 import com.guess.song.service.BoardService;
 
-import lombok.extern.slf4j.Slf4j;
 
 
-
-@Slf4j
 @Controller
 public class BoardController {
-	
 	
 	@Autowired
 	private PrincipalDetailsService principalDetailService;
@@ -50,6 +46,7 @@ public class BoardController {
 		if(searchText != null && !searchText.equals("")) {
 			model.addAttribute("searchText", searchText);
 		}
+		
 				
 		return "/board/main";
 	}
