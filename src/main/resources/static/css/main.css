@@ -35,6 +35,14 @@ body{
 	float: right;
 }
 
+.user_name_div{
+	margin-top : 10px;
+	margin-right : 20px;
+	padding : 10px;
+	border-radius : 25px;
+	float: right;
+}
+
 .top_border{
 	margin : 10px;
 	padding : 10px;
@@ -126,8 +134,60 @@ body{
 	margin : 10px;
 }
 
+.user_pop{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, .7);
+	z-index: 1;
+
+}
+
+.hide{
+	display: none;
+}
+
+.has-filter {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
 
 
+.user_pop .user_content {
+  	padding: 20px;
+  	background: #fff;
+  	border-radius: 5px;
+  	box-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+	min-width: 250px;
+	min-height: 200px;
+	border : 1px solid black;
+}
+
+.user_span{
+	display:block;
+	margin: 20px;
+	text-align: center;
+}
+
+.join_span{
+	display:block;
+	margin: 20px;
+	text-align: center;
+}
+
+.close_btn{
+	float:right;
+}
+
+.close_btn:hover{
+	cursor : pointer;
+	color: #05DCFF;
+}
 
 .disable_evt{
 	pointer-events : none;

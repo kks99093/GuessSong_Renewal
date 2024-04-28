@@ -9,12 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.guess.song.auth.PrincipalDetails;
 import com.guess.song.auth.PrincipalDetailsService;
 import com.guess.song.model.RestFile;
 import com.guess.song.model.dto.SongInfoDTO;
@@ -26,8 +28,10 @@ import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.model.param.UserInfoParam;
 import com.guess.song.service.BoardService;
 
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Controller
 public class BoardController {
 	
@@ -39,17 +43,25 @@ public class BoardController {
 	
 	
 	@GetMapping("/board/main")
-	public String main(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 24) Pageable pageable, Model model, @RequestParam(value="searchText", required=false) String searchText) {
+	public String main(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 24) Pageable pageable, Model model, @RequestParam(value="searchText", required=false) String searchText
+			, @RequestParam(required = false) Integer result, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+		model.addAttribute("joinResult", result);
 		Page<SongBoard> songBoardList = boardService.selSongBoardList(pageable, searchText);
 		model.addAttribute("startIdx", (int)(songBoardList.getPageable().getPageNumber()/10)*10);
 		model.addAttribute("songBoardList", songBoardList);
 		if(searchText != null && !searchText.equals("")) {
 			model.addAttribute("searchText", searchText);
 		}
-		
-				
 		return "/board/main";
 	}
+	
+	
+	@PostMapping("/board/main")
+	public String postMain() {
+		log.info("Post메인");
+		return "board/main";
+	}
+	
 
 	@GetMapping("/board/regSong")
 	public String regSong(SongBoardParam songBoardParam, Model model) {
