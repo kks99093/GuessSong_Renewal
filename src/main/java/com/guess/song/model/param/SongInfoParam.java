@@ -10,11 +10,11 @@ import lombok.Data;
 public class SongInfoParam{
 	
 	private Integer boardPk;
-	private String title;
-	private String password;
 	private List<String> youtubeUrl;
 	private List<String> answer;
 	private List<String> hint;
+	private List<Integer> year;
+	private List<String> category;
 	
 	private List<SongInfo> songInfoList;
 

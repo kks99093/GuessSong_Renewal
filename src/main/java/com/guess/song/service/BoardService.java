@@ -5,23 +5,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.guess.song.handller.SocketHandler;
-import com.guess.song.model.RestFile;
 import com.guess.song.model.dto.SongInfoDTO;
 import com.guess.song.model.entity.GameRoom;
 import com.guess.song.model.entity.SongBoard;
 import com.guess.song.model.entity.SongInfo;
+import com.guess.song.model.entity.UserInfo;
 import com.guess.song.model.param.GameRoomParam;
 import com.guess.song.model.param.SongBoardParam;
 import com.guess.song.model.param.SongInfoParam;
-import com.guess.song.model.param.UserInfoParam;
 import com.guess.song.model.vo.RoomInfo;
 import com.guess.song.model.vo.RoomUserInfo;
 import com.guess.song.repository.GameRoomRepository;
@@ -43,48 +40,11 @@ public class BoardService {
 	
 
 	
-	//게임방 + 목록 등록
-	public void regSong(SongInfoParam songInfoParam, RestFile restFile, HttpServletRequest request) {
-
-		//음악을 담을 게시판 정보 저장
-		SongBoard songBoard = new SongBoard();
-		if(songInfoParam.getBoardPk() == null) {
-			String saveFileNm = Utils.fileUpload(restFile, request);
-			songBoard.setImg(saveFileNm);
-		}else {
-			songBoard = songBoardRep.findByBoardPk(songInfoParam.getBoardPk());
-			String fileName = restFile.getSongImg().getOriginalFilename();
-			if(!fileName.equals("")) {
-				if(!songBoard.getImg().equals("")) {
-					String imgName = songBoard.getImg();
-					String path = request.getServletContext().getRealPath("/") + "upload/songBoard/";
-					Utils.fileDelete(imgName, path);
-				}
-				String saveFileNm = Utils.fileUpload(restFile, request);
-				songBoard.setImg(saveFileNm);
-			}
-			
-			// 노래목록이 몇십개가 되는데 그걸 일일이 수정하는걸 말이 안되는거 같고
-			// 그냥 다 지웠다가 다시 저장하는게 맞을거같은데 어떠려나
-			delSong(songBoard.getBoardPk());
-		}
-		
-		String title = Utils.htmlTagChg(songInfoParam.getTitle());
-		
-		songBoard.setTitle(title);
-		String salt = Utils.getSalt();
-		String cryptPw = Utils.getBcryptPw(salt, songInfoParam.getPassword());
-		songBoard.setSalt(salt);
-		songBoard.setPassword(cryptPw);
-		songBoard = songBoardRep.save(songBoard);
-		insSong(songInfoParam, songBoard);
-
-	}
-	
-	public void insSong(SongInfoParam songInfoParam, SongBoard songBoard) {
-		//음악정보 DB에 저장
+	//노래 정보 DB에 등록
+	public void insSong(SongInfoParam songInfoParam) {
 		for(int i = 0; i < songInfoParam.getAnswer().size(); i++) {
 			SongInfo songInfo = new SongInfo();
+			//유튜브 url 확인
 			String youtubeUrl =songInfoParam.getYoutubeUrl().get(i);
 			if(youtubeUrl.contains("youtu.be")) {
 				int idx = youtubeUrl.lastIndexOf("/");
@@ -98,15 +58,24 @@ public class BoardService {
 				continue;
 			}
 			
+			if(songInfoParam.getYear().get(i) > 2024 || songInfoParam.getYear().get(i) < 1990) {
+				continue;
+			}
+			songInfo.setYear(songInfoParam.getYear().get(i));			
+			songInfo.setYoutubeUrl(youtubeUrl);
 			String answer = Utils.htmlTagChg(songInfoParam.getAnswer().get(i));
 			songInfo.setAnswer(answer);
-			songInfo.setYoutubeUrl(youtubeUrl);
 			String hint = Utils.htmlTagChg(songInfoParam.getHint().get(i));
 			songInfo.setHint(hint);
-			songInfo.setSongBoard(songBoard);
+			songInfo.setCategory(songInfoParam.getCategory().get(i));
+	
 			songRep.save(songInfo);
 		}
+		
+		
+
 	}
+
 	
 	//방목록 불러오기
 	public Page<SongBoard> selSongBoardList(Pageable pageable, String searchText){
@@ -122,19 +91,7 @@ public class BoardService {
 				
 		
 	}
-	
-	public SongBoard selSongBoard(int songBoardPk) {
-		SongBoard songBoard = songBoardRep.findByBoardPk(songBoardPk);
-		for(SongInfo songInfo : songBoard.getSongInfoList()) {
-			System.out.println(songInfo.getYoutubeUrl());
-			String youtubeUrl = "youtu.be/" + songInfo.getYoutubeUrl();
-			songInfo.setYoutubeUrl(youtubeUrl);
-		}
-		
-		return songBoard;
-		
-	}
-	
+
 	
 	public List<SongInfoDTO> findSongList(int songBoardPk){
 
@@ -157,34 +114,44 @@ public class BoardService {
 		
 	}
 	
-	public GameRoom selRoomNumber(GameRoomParam gameRoomParam, UserInfoParam userInfoParam, SongBoardParam songBoardParam) {
-		GameRoom result = new GameRoom();
+	
+	public List<SongInfo> findSongList(GameRoom gameRoom){
 
-		if(gameRoomParam.getCreateRoom() == 1) {
-			//방이 없을경우 방 생성
-			GameRoom gameRoom = new GameRoom();
-			String title = Utils.htmlTagChg(gameRoomParam.getTitle());
-			gameRoom.setTitle(title);
-			gameRoom.setBoardPk(songBoardParam.getBoardPk());
-			String reader = Utils.htmlTagChg(userInfoParam.getUserName());
-			gameRoom.setReader(reader);
-			gameRoom.setAmount(gameRoomParam.getAmount());
-			gameRoom.setHeadCount(1);
-			if(gameRoomParam.getPassword() != null && !gameRoomParam.getPassword().equals("")) {
-				String salt = Utils.getSalt();
-				String cryptPw = Utils.getBcryptPw(salt, gameRoomParam.getPassword());
-				gameRoom.setSalt(salt);
-				gameRoom.setPassword(cryptPw);
-			}
-			gameRoom = gameRoomRep.save(gameRoom);
-			result = gameRoom;
-		}else {
-			//방이 있을 경우 그 방의 정보를 가져다줌
-			GameRoom gameRoom = gameRoomRep.findByRoomPk(gameRoomParam.getRoomPk());
-			result = gameRoom;
-		}
+		List<SongInfo> songList = new ArrayList<SongInfo>();		
 		
+		
+		if(gameRoom.getCategory().equals("all")) {
+			songList = songRep.findSongList(gameRoom.getBeforeYears(), gameRoom.getAfterYears(), gameRoom.getCount());
+		}else {
+			songList = songRep.findSongList(gameRoom.getCategory(), gameRoom.getBeforeYears(), gameRoom.getAfterYears(), gameRoom.getCount());
+		}
+
+		return songList;
+		
+	}
+	
+	
+	
+	public GameRoom insGameRoom(GameRoom gameRoom, UserInfo userInfo) {
+		GameRoom result = new GameRoom();
+		List<SongInfo> songInfoList = findSongList(gameRoom);
+		
+		String title = Utils.htmlTagChg(gameRoom.getTitle());
+		gameRoom.setTitle(title);
+		String reader = Utils.htmlTagChg(userInfo.getName());
+		gameRoom.setReader(reader);
+		gameRoom.setAmount(gameRoom.getAmount());
+		gameRoom.setHeadCount(1);
+		if(gameRoom.getPassword() != null && !gameRoom.getPassword().equals("")) {
+			String salt = Utils.getSalt();
+			String cryptPw = Utils.getBcryptPw(salt, gameRoom.getPassword());
+			gameRoom.setSalt(salt);
+			gameRoom.setPassword(cryptPw);
+		}
+		gameRoom = gameRoomRep.save(gameRoom);
+		result = gameRoom;
 		return result;
+
 	}
 	
 	public int selSongInfo(SongBoardParam songBoardParam) {
@@ -319,6 +286,23 @@ public class BoardService {
 		if(gameRoom != null) {
 			gameRoom.setHeadCount(headCount);
 			gameRoomRep.save(gameRoom);
+		}
+		
+	}
+	
+	
+	public int songInfoChk(GameRoom gameRoom) {
+		int result = 0;
+		if(gameRoom.getCategory().equals("all")) {
+			result = songRep.songInfoChk(gameRoom.getBeforeYears(), gameRoom.getAfterYears());
+		}else {
+			result = songRep.songInfoChk(gameRoom.getCategory(), gameRoom.getBeforeYears(), gameRoom.getAfterYears());
+		}
+		 
+		if(result > gameRoom.getCount()) {
+			return 1;
+		}else {
+			return -1;
 		}
 		
 	}

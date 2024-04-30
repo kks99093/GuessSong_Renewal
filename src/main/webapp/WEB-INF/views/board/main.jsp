@@ -30,13 +30,18 @@
 				</div>
 			</c:when>
 			<c:otherwise>
-				<div>
+				<div>					
 					<div class="user_name_div">
 						<span>${principal.userInfo.name } 님 </span>
 					</div>
 					<div class="login_div">
 						<span id="logoutBtn"> 로그아웃 </span>
 					</div>
+					<c:if test="${principal.userInfo.role == 'ROLE_ADMIN' }">
+						<div class="login_div">
+							<span id="regSong">노래 등록</span>
+						</div>
+					</c:if>
 				</div>
 			</c:otherwise>
 		</c:choose>
@@ -58,15 +63,16 @@
 					</select>
 				</div>
 				<div class="song_category create_span"> 장르 :
-					<select class="create_input" name="category">
+					<select class="create_input" name="category" id="category">
 						<option value="all"> 전체 </option>
 						<option value="ballad"> 발라드 </option>
 						<option value="idol"> 아이돌 </option>
 						<option value="hiphop"> 힙합 </option>
+						<option value="pop"> 팝송 </option>
 					</select>
 				</div>
 				<div class="create_span"> 개수 :
-					 <select class="create_input" name="count">
+					 <select class="create_input" name="count" id="count">
 					 	<option value="8">8</option>
 					 	<option value="16">16</option>
 					 	<option value="32">32</option>
@@ -75,13 +81,23 @@
 					 </select>
 				</div>
 			  
-				<div class="create_span create_span">닉네임 : <input class="create_input" type="text" id="userName" name="userName" ></div>
+				
+				<c:choose>
+					<c:when test="${principal == 'anonymousUser'}">
+						<div class="create_span create_span">닉네임 : <input class="create_input" type="text" id="userName" name="name" ></div>
+					</c:when>
+					<c:otherwise>
+						<div class="create_span create_span">닉네임 : <input class="read_input" type="text" id="userName" name="name" value="${principal.userInfo.name }" readOnly></div>
+					</c:otherwise>
+				</c:choose>
+				
+				
 				<div class="multi_div">
 					<div class="create_span">제목 : <input class="create_input multi_input" type="text" id="title" name="title" ></div>
 					<div class="create_span">비밀번호 : <input placeholder="공백일 경우 비밀번호 없음" class="create_input multi_input" type="password" id="password" name="password" ></div>
 					<div class="create_span">최대인원 :
 					<select class="create_input" name="amount">
-						<option class="create_input ">1</option>
+						<option class="create_input">1</option>
 						<option class="create_input">2</option>
 						<option class="create_input">3</option>
 						<option class="create_input">4</option>

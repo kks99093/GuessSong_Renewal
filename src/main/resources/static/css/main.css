@@ -112,6 +112,15 @@ body{
 	text-align: center;
 }
 
+.read_input{
+	background-color: #F2F2F2;
+	font-size : 30px;
+    border: none;	
+    text-align: center;
+}
+
+
+
 .create_span {
 	margin : 10px;
 }

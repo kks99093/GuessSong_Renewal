@@ -2,30 +2,24 @@ package com.guess.song.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.guess.song.auth.PrincipalDetails;
 import com.guess.song.auth.PrincipalDetailsService;
-import com.guess.song.model.RestFile;
 import com.guess.song.model.dto.SongInfoDTO;
 import com.guess.song.model.entity.GameRoom;
 import com.guess.song.model.entity.SongBoard;
-import com.guess.song.model.param.GameRoomParam;
+import com.guess.song.model.entity.UserInfo;
 import com.guess.song.model.param.SongBoardParam;
 import com.guess.song.model.param.SongInfoParam;
-import com.guess.song.model.param.UserInfoParam;
 import com.guess.song.service.BoardService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +38,7 @@ public class BoardController {
 	
 	@GetMapping("/board/main")
 	public String main(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 24) Pageable pageable, Model model, @RequestParam(value="searchText", required=false) String searchText
-			, @RequestParam(required = false) Integer result, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+			, @RequestParam(required = false) Integer result) {
 		model.addAttribute("joinResult", result);
 		Page<SongBoard> songBoardList = boardService.selSongBoardList(pageable, searchText);
 		model.addAttribute("startIdx", (int)(songBoardList.getPageable().getPageNumber()/10)*10);
@@ -58,34 +52,24 @@ public class BoardController {
 	
 	@PostMapping("/board/main")
 	public String postMain() {
-		log.info("Post메인");
+
 		return "board/main";
 	}
 	
 
-	@GetMapping("/board/regSong")
-	public String regSong(SongBoardParam songBoardParam, Model model) {
-		if(songBoardParam.getBoardPk() != null) {
-			SongBoard songBoard = boardService.selSongBoard(songBoardParam.getBoardPk());
-			model.addAttribute("songBoard", songBoard);
-		}
+	@GetMapping("/admin/regSong")
+	public String regSong(Model model) {		
 		return "/board/regSong";
 	}
 	
-	@PostMapping("/proc/regSong")	
-	public String regSong(HttpServletRequest request, SongInfoParam songInfoParam, RestFile restFile) {
+	@PostMapping("/proc/insSong")	
+	public String insSong(SongInfoParam songInfoParam) {
 		
-		boardService.regSong(songInfoParam, restFile, request);
+		boardService.insSong(songInfoParam);
 		return "redirect:/board/main";
 	}
 	
-	@GetMapping("/board/modeSel")
-	public String modSel(SongBoardParam songBoardParam, Model model) {
-		SongBoard songBoard = boardService.selSongBoard(songBoardParam.getBoardPk());
-		model.addAttribute("songBoard", songBoard);
-		return "/board/modeSel";
-	}
-	
+
 	@PostMapping("/board/soloGameBoard")
 	public String soloGameBoard(SongBoardParam songBoardParam, Model model) {
 		List<SongInfoDTO> songList = boardService.findSongList(songBoardParam.getBoardPk());
@@ -95,22 +79,21 @@ public class BoardController {
 	}
 	
 
-	@PostMapping("/board/multiGameBoard")
-	public String multiGameBoardPost(UserInfoParam userInfoParam, Model model, GameRoomParam gameRoomParam, SongBoardParam songBoardParam) {
-		if(songBoardParam.getBoardPk() != null) {
-			int songchk = boardService.selSongInfo(songBoardParam);
-			if(songchk == 0) {
-				model.addAttribute("msg", "해당 게임에는 등록된 노래가 존재하지 않습니다. ");
-				model.addAttribute("url", "/board/main");
-				return "/board/err";
-			}
-		}
-		GameRoom gameRoom = boardService.selRoomNumber(gameRoomParam, userInfoParam, songBoardParam);
+	@PostMapping("/board/gameBoard")
+		
+	public String gameBoard(UserInfo userInfo, Model model, GameRoom gameRoomParam) {
+		
+		
+		GameRoom gameRoom = boardService.insGameRoom(gameRoomParam, userInfo);
 
-		model.addAttribute("userInfo", userInfoParam);
+		model.addAttribute("userInfo", userInfo);
 		model.addAttribute("gameRoom", gameRoom);
 		return "/board/multiGameBoard";
+		
 	}
+	
+	
+	
 	
 	@GetMapping("/board/gameList")
 	public String gameList(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 10) Pageable pageable, Model model) {

@@ -32,13 +32,9 @@ public class SongInfo {
 	
 	
 	//리뉴얼 추가
-	private String category;
+	private String category;	
 	
-	private int count;
-	
-	private int beforYears;
-	
-	private int afterYears;
+	private int year;	
 	
 	
 	@Column

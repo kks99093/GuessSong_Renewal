@@ -28,6 +28,18 @@ public class GameRoom {
 	
 	private String password;
 	
+	@Column(nullable = false)
+	private int beforeYears;
+	
+	@Column(nullable = false)
+	private int afterYears;
+	
+	@Column(nullable = false)
+	private String category;
+	
+	@Column(nullable = false)
+	private int count;
+	
 	@Column(nullable = false, length = 50)
 	private String reader;
 	
@@ -37,6 +49,9 @@ public class GameRoom {
 	@Column(nullable = false, length = 50)
 	private int headCount;
 	
+	
+	
+	//없앨거
 	@Column(nullable = false, length = 50)
 	private int boardPk;
 	
