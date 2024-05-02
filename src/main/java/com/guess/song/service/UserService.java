@@ -30,6 +30,7 @@ public class UserService {
 	
 	@SuppressWarnings("finally")
 	public int join(UserInfo userInfoParam) {
+		userInfoParam.setName("👨 " + userInfoParam.getName());
 		int result = -1;
 		String beforePw = userInfoParam.getPassword();
 		String afterPw = bcrypt.encode(beforePw);
@@ -44,9 +45,20 @@ public class UserService {
 			// TODO: handle exception
 		}finally {
 			return result;
+		}					
+	}
+	
+	public int dupliChk(UserInfo userInfo) {
+		int result = 0;
+		userInfo.setName("👨 " + userInfo.getName());
+		
+		if(userRep.findByUsername(userInfo.getUsername()) != null) {
+			return -1;
+		}else if(userRep.findByName(userInfo.getName()) != null) {
+			return -2;
 		}
 		
-		
-		
+		return result;
 	}
+	
 }

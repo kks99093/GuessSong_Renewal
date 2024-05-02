@@ -45,6 +45,7 @@
 						<option value="idol"> 아이돌 </option>
 						<option value="hiphop"> 힙합 </option>
 						<option value="pop"> 팝송 </option>
+						<option value="R&B"> R&B </option>
 					</select>
 				</td>				
 				<td><button class="remove_btn" type="button" onclick="removeTr(1)">X</button></td>

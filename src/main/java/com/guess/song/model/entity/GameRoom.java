@@ -24,8 +24,10 @@ public class GameRoom {
 	@Column(nullable = false, length = 100)
 	private String title;
 	
+	@Column(nullable = true)
 	private String salt;
 	
+	@Column(nullable = true)
 	private String password;
 	
 	@Column(nullable = false)

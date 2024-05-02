@@ -13,15 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guess.song.handller.SocketHandler;
-import com.guess.song.model.dto.SongInfoDTO;
+import com.guess.song.model.entity.SongInfo;
 import com.guess.song.model.vo.RoomInfo;
 import com.guess.song.model.vo.RoomUserInfo;
 import com.guess.song.service.BoardService;
-
-import net.bytebuddy.build.HashCodeAndEqualsPlugin;
 
 @Component
 public class SocketUtils {
@@ -41,16 +38,16 @@ public class SocketUtils {
 	}
 	
 	
-	public void joinRoom(WebSocketSession session, String roomNumberStr, int songNumber, String userName) {
+	public void joinRoom(WebSocketSession session, boolean joinChk, String roomNumberStr, String userName) {
 		//방정보, 유저정보 기본셋팅
 		RoomUserInfo roomUserInfo = new RoomUserInfo();		
 		//HashMap<String, RoomUserInfo> userList = new HashMap<String, RoomUserInfo>();
-		if(songNumber != 0) { //songNumber가 0이 아니면 방 생성
+		if(joinChk) { //songNumber가 0이 아니면 방 생성
 			RoomInfo roomInfo = new RoomInfo();
 			SocketHandler.roomList.put(roomNumberStr, roomInfo);
 			HashMap<String, RoomUserInfo> userList = new HashMap<String, RoomUserInfo>();
 			SocketHandler.roomList.get(roomNumberStr).setUserList(userList);			
-			roomInfo = boardService.getRoomInfoT(roomNumberStr,songNumber); // 방정보 기본셋팅
+			roomInfo = boardService.getRoomInfo(roomNumberStr); // 방정보 기본셋팅
 			roomInfo.setReader(session.getId());
 			roomInfo.setNextSongChk(0);
 			roomInfo.setUserList(userList);
@@ -171,7 +168,7 @@ public class SocketUtils {
 	
 	
 	public String getBeforeAnswer(RoomInfo roomInfo) {
-		List<SongInfoDTO> songList = roomInfo.getSongList();
+		List<SongInfo> songList = roomInfo.getSongList();
 		int currentSong = roomInfo.getCurrentSong();
 		String beforeanswer = songList.get(currentSong).getAnswer();
 		return beforeanswer;
@@ -199,7 +196,6 @@ public class SocketUtils {
 			}
 			
 		}
-		System.out.println("스킵카 : " + skipChk);
 		return skipChk;
 	}
 	
@@ -208,7 +204,7 @@ public class SocketUtils {
 	public String nextYoutubeUrl(RoomInfo roomInfo) {
 		String youtubeUrl = "";
 		int currentSong = roomInfo.getCurrentSong();
-		List<SongInfoDTO> songList = roomInfo.getSongList();
+		List<SongInfo> songList = roomInfo.getSongList();
 		if(songList.size() > (currentSong+1)) {
 			youtubeUrl = songList.get(currentSong+1).getYoutubeUrl();
 		}
@@ -237,7 +233,7 @@ public class SocketUtils {
 	
 	
 	//게임 시작한 후 보낸 메세지가 정답인지 확인하는 로직
-	public int answerChk(List<SongInfoDTO> songList, int currentSong, String userMsg, String sessionId, HashMap<String, RoomUserInfo> userList) {
+	public int answerChk(List<SongInfo> songList, int currentSong, String userMsg, String sessionId, HashMap<String, RoomUserInfo> userList) {
 		int answerChk = 0;
 		if(songList.get(currentSong).getAnswer() != null) { //정답칸이 비어있다 => 이미 정답자가 나왔다는 뜻이므로 정답체크 할 필요가 없음
 			String answer = songList.get(currentSong).getAnswer().replaceAll("\\s", ""); //정답

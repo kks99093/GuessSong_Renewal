@@ -9,6 +9,7 @@ $(document).ready(function(){
 		const popup = document.querySelector('#popup');
 		popup.classList.add('hide');
 		$('#pop_password_div').remove();
+		$('#name').val('');
 		roomNumber = 0;
 	})
 	
@@ -26,19 +27,23 @@ $(document).ready(function(){
 	
 	
 	$('#playGame').click(function(){
-		let userName = $('#userName').val();
-		userName = userName.trim();
+		let name = $('input[name=name]').val();
+		userName = name.trim();
 		
-		if(userName == null || userName == '' || !regTypeUserName.test(userName)){
+		if((name == null || name == '' || !regTypeUserName.test(name)) && ($('#loginName').length < 1)) {
 			alert('닉네임을 1~6글자로 입력해 주세요')
 			return ;
 		}else{
 			let password = $('#password').val();
-		
+			
 			let data = {
+				"userInfo" :{
+					name : name
+				},
+				"gameRoom" :{
 					roomPk : roomNumber,
-					userName : userName,
 					password : password
+				}
 			}
 			
 			$.ajax({
@@ -60,11 +65,11 @@ $(document).ready(function(){
 				}else{
 					var form = document.createElement('form');
 					form.setAttribute('method', 'post');
-				    form.setAttribute('action', '/board/multiGameBoard');
+				    form.setAttribute('action', '/board/gameBoard');
 					document.charset = 'URF-8';
 					var params = {
 							roomPk : roomNumber,
-							userName : userName,
+							name : name,
 					}
 					
 					for(var key in params){

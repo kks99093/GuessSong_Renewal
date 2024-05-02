@@ -21,55 +21,11 @@ body{
 	background-color: white;
 }
 
-.gmae_list_div{
-	float: left;	
-}
-
-.login_div{
-	margin-top : 10px;
-	margin-right : 20px;
-	padding : 10px;
-	border-radius : 25px;
-    background: #85DCFF;
-    color: white;
-	float: right;
-}
-
-.user_name_div{
-	margin-top : 10px;
-	margin-right : 20px;
-	padding : 10px;
-	border-radius : 25px;
-	float: right;
-}
-
-.top_border{
-	margin : 10px;
-	padding : 10px;
-	border-radius : 25px;
-    background: #85DCFF;
-    color: white;
-}
-
-.top_span{
-	font-size: 25px;
-	font-weight: 500;
-
-}
-
-.login_btn{
-	float: rigth;
-}
 
 .top_border:hover{
 	cursor : pointer;
 	background-color : #05DCFF;
 	
-}
-
-.login_div:hover{
-	cursor : pointer;
-	background-color : #05DCFF;
 }
 
 .bottom_div{
@@ -139,9 +95,6 @@ body{
 	cursor : pointer;
 }
 
-.input_margin{
-	margin : 10px;
-}
 
 .user_pop{
 	display: flex;
@@ -183,20 +136,7 @@ body{
 	text-align: center;
 }
 
-.join_span{
-	display:block;
-	margin: 20px;
-	text-align: center;
-}
 
-.close_btn{
-	float:right;
-}
-
-.close_btn:hover{
-	cursor : pointer;
-	color: #05DCFF;
-}
 
 .disable_evt{
 	pointer-events : none;

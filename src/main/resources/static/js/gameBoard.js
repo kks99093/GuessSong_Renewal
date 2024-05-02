@@ -3,7 +3,7 @@
  */
 
 var ws;
-var userName = $('#userName').val();
+var userName = $('#name').val();
 let roomNumber = $('#roomNumber').val();
 let songBoardPk = $('#songBoardPk').val();
 var youtubeUrl = "";
@@ -57,7 +57,7 @@ $(document).ready(function(){
 
 
 function wsOpen(){
-	ws = new WebSocket("ws://" + location.host + "/chating/"+roomNumber+"/"+songBoardPk+"/"+userName);
+	ws = new WebSocket("ws://" + location.host + "/chating/"+roomNumber+"/"+userName);
 	wsEvt();
 }
 	

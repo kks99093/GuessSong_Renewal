@@ -2,8 +2,8 @@ package com.guess.song.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.guess.song.model.entity.UserInfo;
 import com.guess.song.service.UserService;
@@ -15,10 +15,17 @@ public class UserController {
 	private UserService userService;
 	
 	@PostMapping("/joinProc")
-	public String joinPorc (UserInfo userInfo, RedirectAttributes reAt) {
+	public String joinPorc (UserInfo userInfo, Model model) {
 		int result = userService.join(userInfo);
-		reAt.addAttribute("result", result);
-		return "redirect:/board/main?";
+		if(result == 1) {
+			model.addAttribute("msg", " 회원가입이 완료 되었습니다. ");
+			model.addAttribute("url", "/board/main");
+		}else {
+			model.addAttribute("msg", " 회원가입에 실패하였습니다. ");
+			model.addAttribute("url", "/board/main");
+		}
+
+		return "/board/info";
 	}
 
 }

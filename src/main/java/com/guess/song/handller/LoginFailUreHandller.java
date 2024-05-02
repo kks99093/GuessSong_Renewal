@@ -24,9 +24,10 @@ public class LoginFailUreHandller implements AuthenticationFailureHandler{
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		String result = userService.loginFail(request.getParameter("username"));
-		request.setAttribute("loginFailed", result);
-		request.getRequestDispatcher("/board/main").forward(request, response);
+		//String result = userService.loginFail(request.getParameter("username"));
+		request.setAttribute("msg", "아이디 비밀번호를 확인해 주세요");
+		request.setAttribute("url", "/board/main");
+		request.getRequestDispatcher("/board/info").forward(request, response);
 		
 	}
 	

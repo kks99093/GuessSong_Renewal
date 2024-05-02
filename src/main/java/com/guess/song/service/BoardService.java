@@ -1,7 +1,6 @@
 package com.guess.song.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,13 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.guess.song.handller.SocketHandler;
-import com.guess.song.model.dto.SongInfoDTO;
 import com.guess.song.model.entity.GameRoom;
 import com.guess.song.model.entity.SongBoard;
 import com.guess.song.model.entity.SongInfo;
 import com.guess.song.model.entity.UserInfo;
-import com.guess.song.model.param.GameRoomParam;
-import com.guess.song.model.param.SongBoardParam;
 import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.model.vo.RoomInfo;
 import com.guess.song.model.vo.RoomUserInfo;
@@ -79,7 +75,6 @@ public class BoardService {
 	
 	//방목록 불러오기
 	public Page<SongBoard> selSongBoardList(Pageable pageable, String searchText){
-		
 		if(searchText == null || searchText.equals("")) {
 			Page<SongBoard> songBoardList = songBoardRep.findAll(pageable);
 			return songBoardList;
@@ -93,75 +88,47 @@ public class BoardService {
 	}
 
 	
-	public List<SongInfoDTO> findSongList(int songBoardPk){
-
-		List<SongInfo> songList = songRep.findByBoardPk(songBoardPk);
-		List<SongInfoDTO> songInfoDTOList = new ArrayList<SongInfoDTO>();
-		//리스트 랜덤 재정렬
-		
-		
-		for(SongInfo songInfo : songList) {
-			SongInfoDTO songInfoDTO = new SongInfoDTO();
-			songInfoDTO.setAnswer(songInfo.getAnswer());
-			songInfoDTO.setSongPk(songInfo.getSongPk());
-			songInfoDTO.setHint(songInfo.getHint());
-			songInfoDTO.setYoutubeUrl(songInfo.getYoutubeUrl());
-			songInfoDTOList.add(songInfoDTO);
-		}
-		
-		Collections.shuffle(songInfoDTOList);
-		return songInfoDTOList;
-		
-	}
-	
-	
 	public List<SongInfo> findSongList(GameRoom gameRoom){
-
 		List<SongInfo> songList = new ArrayList<SongInfo>();		
-		
-		
 		if(gameRoom.getCategory().equals("all")) {
 			songList = songRep.findSongList(gameRoom.getBeforeYears(), gameRoom.getAfterYears(), gameRoom.getCount());
 		}else {
 			songList = songRep.findSongList(gameRoom.getCategory(), gameRoom.getBeforeYears(), gameRoom.getAfterYears(), gameRoom.getCount());
 		}
-
 		return songList;
-		
 	}
 	
 	
 	
 	public GameRoom insGameRoom(GameRoom gameRoom, UserInfo userInfo) {
 		GameRoom result = new GameRoom();
-		List<SongInfo> songInfoList = findSongList(gameRoom);
 		
-		String title = Utils.htmlTagChg(gameRoom.getTitle());
-		gameRoom.setTitle(title);
-		String reader = Utils.htmlTagChg(userInfo.getName());
-		gameRoom.setReader(reader);
-		gameRoom.setAmount(gameRoom.getAmount());
-		gameRoom.setHeadCount(1);
-		if(gameRoom.getPassword() != null && !gameRoom.getPassword().equals("")) {
-			String salt = Utils.getSalt();
-			String cryptPw = Utils.getBcryptPw(salt, gameRoom.getPassword());
-			gameRoom.setSalt(salt);
-			gameRoom.setPassword(cryptPw);
+		if(gameRoom.getRoomPk() == null){
+			String title = Utils.htmlTagChg(gameRoom.getTitle());
+			gameRoom.setTitle(title);
+			String reader = Utils.htmlTagChg(userInfo.getName());
+			gameRoom.setReader(reader);
+			gameRoom.setAmount(gameRoom.getAmount());
+			gameRoom.setHeadCount(1);
+			if(gameRoom.getPassword() != null && !gameRoom.getPassword().equals("")) {
+				String salt = Utils.getSalt();
+				String cryptPw = Utils.getBcryptPw(salt, gameRoom.getPassword());
+				gameRoom.setSalt(salt);
+				gameRoom.setPassword(cryptPw);
+			}else {
+				gameRoom.setPassword(null);
+				gameRoom.setSalt(null);
+			}
+			gameRoom = gameRoomRep.save(gameRoom);
+			result = gameRoom;
+		}else {
+			result = gameRoomRep.findByRoomPk(gameRoom.getRoomPk());
 		}
-		gameRoom = gameRoomRep.save(gameRoom);
-		result = gameRoom;
+		
 		return result;
 
 	}
 	
-	public int selSongInfo(SongBoardParam songBoardParam) {
-		int result = 1;
-		SongInfo songInfo = songRep.findBySongBoardPkLimit1(songBoardParam.getBoardPk());
-		if(songInfo == null) {
-			result = 0;
-		}
-		return result;
-	}
 	
 	public Page<GameRoom> selGameRoom(Pageable pageable){
 		Page<GameRoom> gameRoomList = gameRoomRep.findAll(pageable);
@@ -174,22 +141,6 @@ public class BoardService {
 		gameRoomRep.delete(gameRoom);
 	}
 	
-	public int delSongBoard(SongBoardParam songBoardParam) {
-		int result = 0;
-		SongBoard songBoard = songBoardRep.findByBoardPk(songBoardParam.getBoardPk());
-		try {
-			if(delSong(songBoard.getBoardPk()) == 1) {
-				songBoardRep.delete(songBoard);
-				result = 1;
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-			result = 0;
-			
-		}
-		return result;
-		
-	}
 	
 	public int delSong(int songBoardPk) {
 		int result = 0;
@@ -211,20 +162,9 @@ public class BoardService {
 		return result;
 	}
 	
-	//비밀번호 체크
-	public int boardPassChk(SongBoardParam songBoardParam) {
-		int result = 0;
-		SongBoard songBoard = songBoardRep.findByBoardPk(songBoardParam.getBoardPk());
-		
-		String crypPw = Utils.getBcryptPw(songBoard.getSalt(), songBoardParam.getPassword());
-		if(crypPw.equals(songBoard.getPassword())) {
-			result = 1;
-		}
-		return result;
-	}
-	
+
 	//게임방 비밀번호, 인원, 중복아이디 체크
-	public int gameRoomPassChk(GameRoomParam gameRoomParam) {
+	public int gameRoomPassChk(UserInfo userInfo, GameRoom gameRoomParam) {
 		int result = 1;
 		GameRoom gameRoom = gameRoomRep.findByRoomPk(gameRoomParam.getRoomPk());
 		if(gameRoom.getAmount() - gameRoom.getHeadCount() == 0) {
@@ -240,7 +180,7 @@ public class BoardService {
 		
 		
 		String roomNumber = gameRoomParam.getRoomPk()+"";
-		String userNameParam = gameRoomParam.getUserName();
+		String userNameParam = userInfo.getName();
 		HashMap<String, RoomUserInfo> userList = SocketHandler.getUserList(roomNumber);
 		for(String key : userList.keySet()) {
 			String userName = userList.get(key).getUserName();			
@@ -253,23 +193,10 @@ public class BoardService {
 		return result;
 	}
 	
-	public HashMap<String, Object> getRoomInfo(String roomNumberStr, int songNumber){
-		HashMap<String, Object> roomInfo = new HashMap<String, Object>();
-		int roomNumber = Integer.parseInt(roomNumberStr);
-		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);
-		List<SongInfoDTO> songList = findSongList(songNumber);
-		roomInfo.put("amount", gameRoom.getAmount());
-		roomInfo.put("headCount", gameRoom.getHeadCount());
-		roomInfo.put("songList", songList);
-		roomInfo.put("ready", 1);
-		
-		return roomInfo;
-	}
-	
-	public RoomInfo getRoomInfoT(String roomNuberStr, int songNumber) {
+	public RoomInfo getRoomInfo(String roomNuberStr) {
 		int roomNumber = Integer.parseInt(roomNuberStr);
 		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);
-		List<SongInfoDTO> songList = findSongList(songNumber);
+		List<SongInfo> songList = findSongList(gameRoom);
 		RoomInfo roomInfo = new RoomInfo(gameRoom);
 		roomInfo.setReady(1);
 		roomInfo.setSongList(songList);		

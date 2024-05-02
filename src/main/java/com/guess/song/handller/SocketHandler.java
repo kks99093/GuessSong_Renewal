@@ -12,7 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.guess.song.model.dto.SongInfoDTO;
+import com.guess.song.model.entity.SongInfo;
 import com.guess.song.model.vo.RoomInfo;
 import com.guess.song.model.vo.RoomUserInfo;
 import com.guess.song.service.BoardService;
@@ -20,7 +20,9 @@ import com.guess.song.util.SocketUtils;
 import com.guess.song.util.Utils;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @Data
 public class SocketHandler extends TextWebSocketHandler{
@@ -55,23 +57,21 @@ public class SocketHandler extends TextWebSocketHandler{
 		
 		String url = session.getUri().toString(); // js에서 접속한 localhst/chating/방번호 의 주소가 담겨있음
 		String roomNumber = (url.split("/chating/")[1]).split("/")[0]; // chating뒤의 방번호만 잘라냄
-		String userName = URLDecoder.decode((url.split("/chating/")[1]).split("/")[2],"UTF-8");
+		String userName = URLDecoder.decode((url.split("/chating/")[1]).split("/")[1],"UTF-8");
 		boolean flag =  socketUtils.roomChk(roomNumber, roomList); // 방 유무 체크
 	
 		//방 입장시
 		if(flag == false) {//생성
 			//방 생성시 Map에다가 유저정보를 넣는처리 (songNumber 써서 메서드 하나로 생성 참가 다 처리할 수 있을듯?) 
-			int songNumber = Integer.parseInt((url.split("/chating/")[1]).split("/")[1]); //노래리스트 Pk값
-			socketUtils.joinRoom(session, roomNumber, songNumber, userName);
+			socketUtils.joinRoom(session, true, roomNumber, userName);
 			
 		}else {  //입장
 			//지금 입장한 사람에게 다른사람의 정보를 보냄 (방에 있는 유저의 리스트를 보냄)
 			HashMap<String, RoomUserInfo> userList = getUserList(roomNumber); 
 			socketUtils.sendUserList(session, userList, roomNumber);
 			
-			int songNumber = 0; //이걸로 방 생성인지 참가인지 구분
 			//지금 입장한 사람의 정보를 해당방의 userList에 추가
-			socketUtils.joinRoom(session, roomNumber ,songNumber, userName); 
+			socketUtils.joinRoom(session, false, roomNumber, userName); 
 			socketUtils.sendMyInfo(session, userList, userName);
 			//이미 입장해 있는 다른 유저에게 본인 닉네임과 sessionId를 보냄 (메세지를 보낼때는 해당유저의 session을 가져와서 .sendMessage 메서드로 보냄)
 
@@ -86,7 +86,7 @@ public class SocketHandler extends TextWebSocketHandler{
 		jsonObject.put("type", "sessionId");
 		jsonObject.put("sessionId", session.getId());
 		jsonObject.put("reader", getRoomInfo(roomNumber).getReader());
-		List<SongInfoDTO> songInfoList = getRoomInfo(roomNumber).getSongList();
+		List<SongInfo> songInfoList = getRoomInfo(roomNumber).getSongList();
 		int totalSongNum = songInfoList.size();
 		jsonObject.put("youtubeUrl", songInfoList.get(0).getYoutubeUrl());
 		jsonObject.put("totalSongNum", totalSongNum);
@@ -144,7 +144,7 @@ public class SocketHandler extends TextWebSocketHandler{
 				String answerReady = (String)jsonObject.get("answerReady");
 				if(roomInfo.getCurrentSong() != null && answerReady.equals("1")) {
 					String userMsg = ((String)jsonObject.get("msg")).replaceAll("\\s", "");
-					List<SongInfoDTO> songList = roomInfo.getSongList();
+					List<SongInfo> songList = roomInfo.getSongList();
 					int currentSong = roomInfo.getCurrentSong();
 					beforeAnswer = songList.get(currentSong).getAnswer();
 					int answerChk = socketUtils.answerChk(songList, currentSong, userMsg, session.getId(), roomInfo.getUserList());

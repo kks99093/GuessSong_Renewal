@@ -5,7 +5,7 @@
 <html>
 <head>
 <script src="/js/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="/css/multiGameBoard.css">
+<link rel="stylesheet" href="/css/gameBoard.css">
 <meta charset="UTF-8">
 <title>노래 맞추기</title>
 </head>
@@ -52,10 +52,9 @@
 	<div id="youtubePlayer">
 		<div id="player"></div>
 	</div>
-	<input type="hidden" value="${userInfo.userName }" id="userName">
+	<input type="hidden" value="${userInfo.name }" id="name">
 	<input type="hidden" value="" id="sessionId">
 	<input type="hidden" value="${gameRoom.roomPk }" id="roomNumber">
-	<input type="hidden" value="${gameRoom.boardPk }" id="songBoardPk">
 	<input type="hidden" value="" id="color">		
 </div>
 
@@ -78,6 +77,6 @@
 	</div>
 </div>
 
-<script src="/js/multiGameBoard.js"></script>
+<script src="/js/gameBoard.js"></script>
 </body>
 </html>

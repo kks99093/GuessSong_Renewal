@@ -1,6 +1,6 @@
 package com.guess.song.controller;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.guess.song.auth.PrincipalDetailsService;
-import com.guess.song.model.dto.SongInfoDTO;
 import com.guess.song.model.entity.GameRoom;
 import com.guess.song.model.entity.SongBoard;
 import com.guess.song.model.entity.UserInfo;
-import com.guess.song.model.param.SongBoardParam;
 import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.service.BoardService;
 
@@ -35,6 +33,13 @@ public class BoardController {
 	@Autowired
 	private BoardService boardService;
 	
+	@GetMapping({""})
+	public String index(HttpServletRequest request) {
+		String  userIp = request.getRemoteAddr();
+		System.out.println(userIp);
+		return "redirect:/board/main";
+	}
+	
 	
 	@GetMapping("/board/main")
 	public String main(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 24) Pageable pageable, Model model, @RequestParam(value="searchText", required=false) String searchText
@@ -48,7 +53,6 @@ public class BoardController {
 		}
 		return "/board/main";
 	}
-	
 	
 	@PostMapping("/board/main")
 	public String postMain() {
@@ -70,30 +74,17 @@ public class BoardController {
 	}
 	
 
-	@PostMapping("/board/soloGameBoard")
-	public String soloGameBoard(SongBoardParam songBoardParam, Model model) {
-		List<SongInfoDTO> songList = boardService.findSongList(songBoardParam.getBoardPk());
-		model.addAttribute("songList", songList);
-		model.addAttribute("userName", songBoardParam.getUserName());
-		return "/board/soloGameBoard";
-	}
-	
-
 	@PostMapping("/board/gameBoard")
 		
 	public String gameBoard(UserInfo userInfo, Model model, GameRoom gameRoomParam) {
-		
-		
+
 		GameRoom gameRoom = boardService.insGameRoom(gameRoomParam, userInfo);
 
 		model.addAttribute("userInfo", userInfo);
 		model.addAttribute("gameRoom", gameRoom);
-		return "/board/multiGameBoard";
+		return "/board/gameBoard";
 		
 	}
-	
-	
-	
 	
 	@GetMapping("/board/gameList")
 	public String gameList(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 10) Pageable pageable, Model model) {
@@ -104,14 +95,11 @@ public class BoardController {
 		return "/board/gameList";
 	}
 	
-	@GetMapping("/board/test")
-	public String test() {
-
-	
-		return "/board/test";
+	@PostMapping("/board/info")
+	public String infoBoard(Model model) {
+		
+		return "/board/info";
 	}
-	
-	
 
 	
 	// 세션 강제 부여	

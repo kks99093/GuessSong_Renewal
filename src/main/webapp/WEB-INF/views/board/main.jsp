@@ -15,36 +15,7 @@
 <body>
 <div class="container">
 	<div class="top_div">
-		<div class="gmae_list_div top_border" id="guessSong_btn">
-			<span class="top_span" id="guessSong_span">노래맞추기</span>
-		</div>
-		<c:choose>
-			<c:when test="${principal == 'anonymousUser'}">
-				<div>
-					<div class="login_div" id="logoinBtn">
-						<span class="top_span login_btn">로그인</span>
-					</div>
-					<div class="login_div" id="joinBtn">
-						<span class="top_span login_btn">회원가입</span>
-					</div>
-				</div>
-			</c:when>
-			<c:otherwise>
-				<div>					
-					<div class="user_name_div">
-						<span>${principal.userInfo.name } 님 </span>
-					</div>
-					<div class="login_div">
-						<span id="logoutBtn"> 로그아웃 </span>
-					</div>
-					<c:if test="${principal.userInfo.role == 'ROLE_ADMIN' }">
-						<div class="login_div">
-							<span id="regSong">노래 등록</span>
-						</div>
-					</c:if>
-				</div>
-			</c:otherwise>
-		</c:choose>
+		<jsp:include page="/WEB-INF/views/board/template/mainTemplate.jsp"></jsp:include>		
 	</div>
 	
 	<div class="create_container">
@@ -68,11 +39,13 @@
 						<option value="ballad"> 발라드 </option>
 						<option value="idol"> 아이돌 </option>
 						<option value="hiphop"> 힙합 </option>
-						<option value="pop"> 팝송 </option>
+						<option value="pop"> 팝 </option>
+						<option value="R&B"> R&B </option>
 					</select>
 				</div>
 				<div class="create_span"> 개수 :
 					 <select class="create_input" name="count" id="count">
+					 <option value="4">4</option>
 					 	<option value="8">8</option>
 					 	<option value="16">16</option>
 					 	<option value="32">32</option>
@@ -84,10 +57,11 @@
 				
 				<c:choose>
 					<c:when test="${principal == 'anonymousUser'}">
-						<div class="create_span create_span">닉네임 : <input class="create_input" type="text" id="userName" name="name" ></div>
+						<div class="create_span create_span">닉네임 : <input class="create_input" type="text" id="name" name="name" ></div>
 					</c:when>
 					<c:otherwise>
-						<div class="create_span create_span">닉네임 : <input class="read_input" type="text" id="userName" name="name" value="${principal.userInfo.name }" readOnly></div>
+						<div class="create_span create_span">닉네임 : <input class="read_input" type="text" id="name" name="name" value="${principal.userInfo.name }" readOnly></div>
+						<input type="hidden" id="loginName">
 					</c:otherwise>
 				</c:choose>
 				
@@ -114,39 +88,6 @@
 		</div>
 	</div>
 </div>
-<div class="user_pop hide" id="loginPop">	
-	<div class="user_content" id="loginContent">
-	<div class="close_btn" id="loginCloseBtn">X</div>
-		<div>
-			<form action="/auth/loginProc" method="post">
-				<span class="user_span">아이디 : <input type="text" placeholder="아이디" name="username" id="loginId"/></span>
-				<span class="user_span">비밀번호 : <input type="password" placeholder="비밀번호" name="password" id="loginPw"/></span>
-				<span class="user_span"><button id="loginBtn">로그인</button></span>		
-			</form>
-		</div>
-	</div>
-</div>
 
-
-<div class="user_pop hide" id="joinPop">	
-	<div class="user_content" id="joinContent">
-	<div class="close_btn" id="joinCloseBtn">X</div>
-		<div>
-			<form action="/joinProc" method="post">
-				<span class="user_span">아이디 : <input type="text" placeholder="아이디" name="username" id="joinId"/></span>
-				<span class="user_span">비밀번호 : <input type="password" placeholder="비밀번호" name="password" id="joinPw"/></span>
-				<span class="user_span">닉네임 : <input type="text" placeholder="닉네임" name="name" id="joinName"/></span>
-				<span class="user_span"><button id="joinBtn">회원가입</button></span>		
-			</form>
-		</div>
-	</div>
-</div>
-
- 
-
-
-
-<input type="hidden" value="${loginFailed}" id="loginFaileChk">
-<input type="hidden" value="${joinResult}" id="joinResult">
 </body>
 </html>
