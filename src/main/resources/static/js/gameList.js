@@ -27,8 +27,13 @@ $(document).ready(function(){
 	
 	
 	$('#playGame').click(function(){
-		let name = $('input[name=name]').val();
-		userName = name.trim();
+		let name = $('#name').val();		
+		if($('#loginName').length > 0){
+			name = $('#loginName').val();
+		}else{
+			name = name.trim();
+		}
+		
 		
 		if((name == null || name == '' || !regTypeUserName.test(name)) && ($('#loginName').length < 1)) {
 			alert('닉네임을 1~6글자로 입력해 주세요')
@@ -54,13 +59,13 @@ $(document).ready(function(){
 				dataType: "json"
 			}).done(function(resp){
 				if(resp == 0){
-					alert('현재 방에 동일한 이름을 사용하는 사람이 있습니다')
+					alert('현재 방에 동일한 이름을 사용하는 사람이 있습니다');
 					return
 				}else if(resp == -1){
-					alert('비밀번호가 틀렸습니다').
+					alert('비밀번호가 틀렸습니다');
 					return;
 				}else if(resp == -2){
-					alert('인원이 가득 찼습니다.')
+					alert('인원이 가득 찼습니다.');
 					return;
 				}else{
 					var form = document.createElement('form');

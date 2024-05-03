@@ -22,6 +22,9 @@ import com.guess.song.repository.SongBoardRepository;
 import com.guess.song.repository.SongInfoRepository;
 import com.guess.song.util.Utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class BoardService {
 	
@@ -178,12 +181,11 @@ public class BoardService {
 			}
 		}
 		
-		
 		String roomNumber = gameRoomParam.getRoomPk()+"";
 		String userNameParam = userInfo.getName();
 		HashMap<String, RoomUserInfo> userList = SocketHandler.getUserList(roomNumber);
 		for(String key : userList.keySet()) {
-			String userName = userList.get(key).getUserName();			
+			String userName = userList.get(key).getUserName();
 			if(userNameParam.equals(userName)) {
 				result = 0; // 중복된 아이디가 있음
 				break;

@@ -15,6 +15,9 @@ import com.guess.song.model.entity.UserInfo;
 import com.guess.song.service.BoardService;
 import com.guess.song.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class UserRestController {
 	

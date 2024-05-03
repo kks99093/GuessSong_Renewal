@@ -58,6 +58,10 @@ const regTypeJoinName = /^[가-힣a-zA-z\s0-9]{1,6}$/;
 		location.href = "/board/gameList";
 	})
 	
+	$('#gameCreateBtn').click(()=>{
+		location.href = "/board/main";
+	})
+	
 	
 	$('#joinBtn').click(async () =>{
 		

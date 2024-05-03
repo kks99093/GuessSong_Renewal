@@ -31,10 +31,9 @@ th {
   color:#FFFFFF;;
   background:#000000;
   border-bottom:4px solid #9ea7af;
-  font-size:25px;
+  font-size:20px;
   font-weight: 200;
-  padding:20px;
-  text-align:left;
+  padding: 20px 10px 20px 10px;
   vertical-align:middle;
 }
 
@@ -48,15 +47,23 @@ th:last-child {
 }
 
 .th_title{
-	width: 60%;
+	width: 55%;
+}
+
+.th_category{
+	width: 10%;
+}
+
+.th_count{
+	width: 10%;
 }
 
 .th_reader{
-	width: 20%;
+	width: 10%;
 }
 
 .th_amount{
-	width: 15%;
+	width: 10%;
 }
 
 .th_pass{
@@ -104,7 +111,7 @@ tr:last-child td:last-child {
  
 td {
   background:#FFFFFF;
-  padding:20px;
+  padding: 20px 10px 20px 10px;
   text-align:left;
   vertical-align:middle;
   font-weight:300;
@@ -234,4 +241,8 @@ button {
 }
 .disable_cursor{
 	cursor : default;
+}
+
+.current_page{
+	font-weight : bold;
 }

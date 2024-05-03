@@ -19,6 +19,7 @@ import com.guess.song.model.entity.SongBoard;
 import com.guess.song.model.entity.UserInfo;
 import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.service.BoardService;
+import com.guess.song.util.StaticUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,22 +36,17 @@ public class BoardController {
 	
 	@GetMapping({""})
 	public String index(HttpServletRequest request) {
-		String  userIp = request.getRemoteAddr();
-		System.out.println(userIp);
+		
 		return "redirect:/board/main";
 	}
 	
 	
 	@GetMapping("/board/main")
-	public String main(@PageableDefault(sort = {"createTime"}, direction = Direction.DESC, size = 24) Pageable pageable, Model model, @RequestParam(value="searchText", required=false) String searchText
-			, @RequestParam(required = false) Integer result) {
-		model.addAttribute("joinResult", result);
-		Page<SongBoard> songBoardList = boardService.selSongBoardList(pageable, searchText);
-		model.addAttribute("startIdx", (int)(songBoardList.getPageable().getPageNumber()/10)*10);
-		model.addAttribute("songBoardList", songBoardList);
-		if(searchText != null && !searchText.equals("")) {
-			model.addAttribute("searchText", searchText);
-		}
+	public String main(HttpServletRequest request) {
+		int count = StaticUtils.getCount() + 1;
+		StaticUtils.setCount(count);
+		String  userIp = request.getRemoteAddr();
+		log.info("접속 : " + userIp + " ," + count + " 번째");
 		return "/board/main";
 	}
 	

@@ -8,6 +8,9 @@
 	<div class="gmae_list_div top_border" id="gameListBtn">
 		<span class="top_span">게임 리스트</span>
 	</div>
+	<div class="gmae_list_div top_border" id="gameCreateBtn">
+		<span class="top_span">방 만들기</span>
+	</div>
 <!-- 
 	<div class="gmae_list_div top_border" id="guessSong_btn">
 		<span class="top_span" id="guessSong_span">노래맞추기</span>

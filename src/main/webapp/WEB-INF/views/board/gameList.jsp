@@ -10,7 +10,7 @@
 <script src="/js/gameList.js"></script>
 <link rel="stylesheet" href="/css/gameList.css">
 <meta charset="UTF-8">
-<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0; width=device-width;">
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, width=device-width">
 <title>게임 목록</title>
 <style>
 
@@ -18,6 +18,9 @@
 </head>
 <body>
 <div>
+	<div class="top_div">
+		<jsp:include page="/WEB-INF/views/board/template/mainTemplate.jsp"></jsp:include>		
+	</div>
 	<div class="table_title_div">
 		<h3>게임 목록</h3>
 	</div>	
@@ -25,6 +28,8 @@
 		<thead>
 			<tr>
 			    <th class="text-left th_title">제목</th>
+			    <th class="text-left th_category">장르</th>
+			    <th class="text-left th_count">개수</th>
 			    <th class="text-left th_reader">방장</th>
 			    <th class="text-left th_amount">인원</th>
 			    <th class="text-left th_pass">&#128274;</th>
@@ -34,6 +39,8 @@
 			<c:forEach var="gameRoom" items="${gameRoomList.content}">
 				<tr class="gameList_tr" param1="${gameRoom.roomPk }" param2="${gameRoom.password != null ? '1' : ''}">
 					<td class="text-left">${gameRoom.title } </td>
+					<td class="text-left">${gameRoom.category } </td>
+					<td class="text-left">${gameRoom.count } </td>
 					<td class="text-left">${gameRoom.reader } </td>
 					<td class="text-left">${gameRoom.headCount } / ${gameRoom.amount}</td>
 					<td>
@@ -49,7 +56,7 @@
 		<ul>
 			<li class="${gameRoomList.pageable.pageNumber == 0 ? 'disable_evt disable_cursor' : '' }" onclick="pageMove(${gameRoomList.pageable.pageNumber-1})">이전</li>	
 			<c:forEach begin="${startIdx+1}" end="${gameRoomList.totalPages > startIdx+10 ? startIdx+10 : gameRoomList.totalPages}" varStatus="status">
-				<li class="${gameRoomList.pageable.pageNumber == status.index-1 ? 'disable_evt disable_cursor' : '' }" onclick="pageMove(${status.index-1})">${status.index }</li>
+				<li class="${gameRoomList.pageable.pageNumber == status.index-1 ? 'disable_evt disable_cursor current_page' : '' }" onclick="pageMove(${status.index-1})">${status.index }</li>
 			</c:forEach>
 			<li class="${gameRoomList.pageable.pageNumber >= gameRoomList.totalPages-1 ? 'disable_evt disable_cursor' : '' }" onclick="pageMove(${gameRoomList.pageable.pageNumber+1})">다음></li>
 		</ul>
@@ -64,7 +71,8 @@
 			<div id="pop_userName_div"><span class="pop_name_span">닉네임 : </span><input class="input_name" type="text" id="name" name="name"></div>
 		</c:when>
 		<c:otherwise>
-			<div id="pop_userName_div"><span class="pop_name_span">닉네임 : </span><input class="read_input_name" type="text" id="logIn_name" name="name" value="${principal.userInfo.name }" readOnly></div>
+			<div id="pop_userName_div"><span class="pop_name_span">닉네임 : </span><input class="read_input_name" type="text" id="
+" name="name" value="${principal.userInfo.name }" readOnly></div>
 			<input type="hidden" id="loginName">
 		</c:otherwise>
   	</c:choose>  	
