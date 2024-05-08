@@ -8,10 +8,12 @@
 <script src="/js/regSong.js"></script>
 <link rel="stylesheet" href="/css/regSong.css">
 <meta charset="UTF-8">
-<title>노래 등록하기</title>
+<title>노래 등록</title>
 </head>
 <body>
-
+<div class="top_div">
+	<jsp:include page="/WEB-INF/views/board/template/mainTemplate.jsp"></jsp:include>		
+</div>
 
 <section>
   <!--for demo wrap-->
@@ -58,8 +60,6 @@
   		  
   </form>  
 </section>
+
 </body>
-<script>
-	
-</script>
 </html>

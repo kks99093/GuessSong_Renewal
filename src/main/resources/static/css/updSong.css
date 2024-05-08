@@ -1,0 +1,174 @@
+@charset "UTF-8";
+
+
+h1{
+  font-size: 30px;
+  color: #85DCFF;
+  text-transform: uppercase;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 15px;
+}
+table{
+  width:100%;
+  table-layout: fixed;
+}
+.tbl-header{
+	/*
+  background-color: rgba(255,255,255,0.3);
+  */
+  background-color : #fff;
+ }
+.tbl-content{
+  overflow-x:auto;
+  margin-top: 0px;
+  border: 1px solid #85DCFF;
+}
+th{
+  padding: 20px 15px;
+  text-align: left;
+  font-weight: bolt;
+  font-size: 15px;
+  color: #85DCFF;
+  text-transform: uppercase;
+}
+td{
+  padding: 15px;
+  text-align: left;
+  vertical-align:middle;
+  font-weight: 300;
+  font-size: 12px;
+  color: #85DCFF;
+  border-bottom: solid 1px rgba(255,255,255,0.1);
+}
+
+
+/* demo styles */
+
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,300,700);
+body{
+	/*
+  background: -webkit-linear-gradient(left, #25c481, #25b7c4);
+  background: linear-gradient(to right, #05b7c4, #A5b7c4);
+  */
+  background-color : #F2F2F2;
+  font-family: 'Roboto', sans-serif;
+}
+section{
+  margin: 50px;
+}
+
+
+/* follow me template */
+.made-with-love {
+  margin-top: 40px;
+  padding: 10px;
+  clear: left;
+  text-align: center;
+  font-size: 10px;
+  font-family: arial;
+  color: #fff;
+}
+.made-with-love i {
+  font-style: normal;
+  color: #F50057;
+  font-size: 14px;
+  position: relative;
+  top: 2px;
+}
+.made-with-love a {
+  color: #fff;
+  text-decoration: none;
+}
+.made-with-love a:hover {
+  text-decoration: underline;
+}
+
+
+/* for custom scrollbar for webkit browser*/
+
+::-webkit-scrollbar {
+    width: 6px;
+} 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+} 
+::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+}
+
+#delete_btn{
+	border : solid #85DCFF 1px;
+	background-color: white;
+	font-size : 1.5em;
+	border-radius: 5px;
+}
+
+#add_songList_btn:hover{
+	background-color : #85DCFF;
+	cursor: pointer;
+}
+
+.remove_btn{
+	border : solid #85DCFF 1px;
+	background-color: white;
+	font-size : 1.5em;
+	border-radius: 5px;
+}
+
+.remove_btn:hover{
+	background-color : #85DCFF;
+	cursor: pointer;
+}
+
+.submit_btn{
+	border : solid #85DCFF 1px;
+	background-color: white;
+	font-size : 1.5em;
+	border-radius: 5px;
+	margin: 5px;
+	float:right;
+}
+
+.submit_btn:hover{
+	background-color : #85DCFF;
+	cursor: pointer;
+}
+
+
+.song_input{
+	border : none;
+}
+
+.readonly {
+	background-color: #ddd;
+	pointer-events : none;
+}
+
+
+
+.page_div ul{
+	text-align:center;
+	list-style : none;
+}
+.page_div ul li{
+	display : inline-block;
+	margin : 10px;
+}
+
+.page_div ul li:hover{
+	font-weight:bold;
+	cursor : pointer;
+}
+
+.disable_evt{
+	pointer-events : none;
+	opacity: 0.65;
+}
+.disable_cursor{
+	cursor : default;
+}
+
+.current_page{
+	font-weight : bold;
+}

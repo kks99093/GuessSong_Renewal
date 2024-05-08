@@ -39,6 +39,9 @@
 					<div class="login_div">
 						<span class="login_top_span" id="regSong">노래 등록</span>
 					</div>
+					<div class="login_div">
+						<span class="login_top_span" id="updSong">노래 관리</span>
+					</div>
 				</c:if>
 			</div>
 		</c:otherwise>

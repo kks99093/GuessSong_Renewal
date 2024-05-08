@@ -11,11 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.guess.song.auth.PrincipalDetailsService;
 import com.guess.song.model.entity.GameRoom;
-import com.guess.song.model.entity.SongBoard;
+import com.guess.song.model.entity.SongInfo;
 import com.guess.song.model.entity.UserInfo;
 import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.service.BoardService;
@@ -60,6 +59,13 @@ public class BoardController {
 	@GetMapping("/admin/regSong")
 	public String regSong(Model model) {		
 		return "/board/regSong";
+	}
+	
+	@GetMapping("/admin/updSong")
+	public String updSong(@PageableDefault(sort = {"answer"}, direction = Direction.DESC, size = 10) Pageable pageable, Model model) {
+		Page<SongInfo> songInfoList = boardService.getSongInfoList(pageable);
+		model.addAttribute("songInfoList", songInfoList);
+		return "/board/updSong";
 	}
 	
 	@PostMapping("/proc/insSong")	

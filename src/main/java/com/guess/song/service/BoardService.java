@@ -11,14 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.guess.song.handller.SocketHandler;
 import com.guess.song.model.entity.GameRoom;
-import com.guess.song.model.entity.SongBoard;
 import com.guess.song.model.entity.SongInfo;
 import com.guess.song.model.entity.UserInfo;
 import com.guess.song.model.param.SongInfoParam;
 import com.guess.song.model.vo.RoomInfo;
 import com.guess.song.model.vo.RoomUserInfo;
 import com.guess.song.repository.GameRoomRepository;
-import com.guess.song.repository.SongBoardRepository;
 import com.guess.song.repository.SongInfoRepository;
 import com.guess.song.util.Utils;
 
@@ -30,10 +28,7 @@ public class BoardService {
 	
 	@Autowired
 	private SongInfoRepository songRep;
-	
-	@Autowired
-	private SongBoardRepository songBoardRep;
-	
+
 	@Autowired
 	private GameRoomRepository gameRoomRep;
 	
@@ -70,26 +65,39 @@ public class BoardService {
 	
 			songRep.save(songInfo);
 		}
-		
-		
-
 	}
-
 	
-	//방목록 불러오기
-	public Page<SongBoard> selSongBoardList(Pageable pageable, String searchText){
-		if(searchText == null || searchText.equals("")) {
-			Page<SongBoard> songBoardList = songBoardRep.findAll(pageable);
-			return songBoardList;
+	public int updSong(SongInfo songInfoParam) {
+		SongInfo songInfo = songRep.findBySongPk(songInfoParam.getSongPk());
+		String youtubeUrl = songInfoParam.getYoutubeUrl();
+		
+		if(youtubeUrl.contains("youtu.be")) {
+			int idx = youtubeUrl.lastIndexOf("/");
+			youtubeUrl = youtubeUrl.substring(idx+1);
+			
+		}else if(youtubeUrl.contains("youtube.com")) {
+			int startIdx = youtubeUrl.indexOf("v=")+2;
+			int endIdx = youtubeUrl.indexOf("&");
+			youtubeUrl = youtubeUrl.substring(startIdx, endIdx);
 		}else {
-			searchText = "%"+ searchText +"%";
-			Page<SongBoard> songBoardList = songBoardRep.findByTitleLike(pageable, searchText);
-			return songBoardList;
+			return -1;
 		}
-				
+		songInfo.setYoutubeUrl(youtubeUrl);
+		songInfo.setAnswer(Utils.htmlTagChg(songInfoParam.getAnswer()));
+		songInfo.setHint(Utils.htmlTagChg(songInfoParam.getHint()));
+		songInfo.setYear(songInfoParam.getYear());
+		songInfo.setCategory(songInfoParam.getCategory());
+		songRep.save(songInfo);
+		return 0;
 		
 	}
-
+	
+	
+	public int delSong(SongInfo songInfoParam) {
+		int result = songRep.delSong(songInfoParam.getSongPk());		
+		return result;
+	}
+	
 	
 	public List<SongInfo> findSongList(GameRoom gameRoom){
 		List<SongInfo> songList = new ArrayList<SongInfo>();		
@@ -234,6 +242,11 @@ public class BoardService {
 			return -1;
 		}
 		
+	}
+	
+	public Page<SongInfo> getSongInfoList(Pageable pageable){
+		Page<SongInfo> songInfoList = songRep.findAll(pageable);
+		return songInfoList;
 	}
 
 }

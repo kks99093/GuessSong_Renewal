@@ -2,11 +2,13 @@ package com.guess.song.repository;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.guess.song.model.entity.SongBoard;
 import com.guess.song.model.entity.SongInfo;
 
 @Repository
@@ -33,6 +35,13 @@ public interface SongInfoRepository extends JpaRepository<SongInfo, Integer> {
 	
 	@Query(nativeQuery = true, value=" SELECT * FROM songInfo WHERE year >= ?1 AND year <= ?2 ORDER BY RAND() limit ?3 ")
 	List<SongInfo> findSongList(int beforeYears, int afterTears, int count);
+	
+	SongInfo findBySongPk(int songPk);
+	
+	@Modifying
+	@Transactional
+	@Query(nativeQuery = true, value = " DELETE FROM songInfo WHERE songPk = ?1 ")
+	int delSong(int songPk);
 	
 
 }

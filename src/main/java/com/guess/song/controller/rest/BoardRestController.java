@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.guess.song.model.entity.GameRoom;
+import com.guess.song.model.entity.SongInfo;
 import com.guess.song.service.BoardService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,19 @@ public class BoardRestController {
 	public int songInfoChk(@RequestBody GameRoom gameRoom) {
 		System.out.println(gameRoom);
 		int result = boardService.songInfoChk(gameRoom);		
+		return result;
+	}
+	
+	@PostMapping("rest/updSong")
+	public int updSong(@RequestBody SongInfo songInfo) {
+		int result = boardService.updSong(songInfo);
+		return result;
+	}
+	
+	@PostMapping("rest/delSong")
+	public int delSong(@RequestBody SongInfo songInfo) {		
+		int result = boardService.delSong(songInfo);
+		
 		return result;
 	}
 

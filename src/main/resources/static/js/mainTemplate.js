@@ -62,6 +62,10 @@ const regTypeJoinName = /^[가-힣a-zA-z\s0-9]{1,6}$/;
 		location.href = "/board/main";
 	})
 	
+	$('#updSong').click(()=>{
+		location.href = "/admin/updSong";
+	})
+	
 	
 	$('#joinBtn').click(async () =>{
 		
