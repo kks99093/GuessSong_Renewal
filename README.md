@@ -1,22 +1,37 @@
 ## GuessSong
-#### 2022. 9. 22 ~ 2022. 10. 06 
+#### 2022. 9. 22 ~ 
 #### WebSocket을 이용해서 만든 노래맞추기 게임 입니다.
-##### <a href="http://www.guesssong.site" target="_blank">구경하러 가기</a>
-
-+ 메인 화면
-<img src="https://user-images.githubusercontent.com/66832664/194889772-817c0ea8-5841-4ef2-88d2-223183a64a31.jpg" width="800px">
-
-+ 노래 등록 / 수정
-<img src="https://user-images.githubusercontent.com/66832664/194890388-45370dcf-821d-41da-8c9a-16e1b7b3b279.gif" width="800px">
-
-+ 게임 방 만들기
-<img src="https://user-images.githubusercontent.com/66832664/194890396-93a96e20-350d-4744-8798-7f2eca9a5e5b.gif" width="800px">
+##### <a href="http://www.guesssong.site" target="_blank">게임하러 가기</a>
+##### 리뉴얼 전 : https://github.com/kks99093/GuessSong_Before
+###### 변경사항
+- 유저가 직접 노래리스트 등록 => 관리자가 노래 등록
+  ( 노래 목록을 담는 게시판 삭제 , 노래 등록시 카테고리 추가)
+- 관리자 추가로 인한 회원가입 및 로그인 추가
+- 로그인 유저와 비로그인 유저 닉네임 구분 추가
+- 관리자의 노래 관리 게시판 추가
+</br></br></br>
+----------------------------------------------
+###### 둘러보기 
++ 메인 화면 및 방 만들기
+![mainAndMakeGame](https://github.com/kks99093/GuessSong_Renewal/assets/66832664/afa8e253-00c8-47de-9328-54d6cf19d985)
 
 + 게임 참가하기
-<img src="https://user-images.githubusercontent.com/66832664/194890399-224265ff-605b-444a-bdaa-d5c6ff9c93ea.gif" width="800px">
+![gameList](https://github.com/kks99093/GuessSong_Renewal/assets/66832664/56d11201-bad7-46ca-a111-075a6f7f60c3)
 
 + 게임 화면
-<img src="https://user-images.githubusercontent.com/66832664/194890406-d92da668-72c1-4041-9805-1bb72ba11def.gif" width="800px">
+![inGame](https://github.com/kks99093/GuessSong_Renewal/assets/66832664/7d5c63ac-7616-42bc-ba7f-583e72a018c6)
+
++ 회원가입 및 로그인
+![joinAndLogin](https://github.com/kks99093/GuessSong_Renewal/assets/66832664/97718444-83f3-4487-9fc5-ba42f8cc33ca)
+
+
+#### - 관리자 페이지 -
+
++ 노래 등록
+![regSong](https://github.com/kks99093/GuessSong_Renewal/assets/66832664/39e0f6e4-73ca-4d3d-9c07-215c98eac707)
+
++ 노래 관리
+![songManage](https://github.com/kks99093/GuessSong_Renewal/assets/66832664/24a5b750-8ba7-49af-9782-acca0ee86f5a)
 
 -------------------------------------------------
 ### 개발환경
@@ -25,3 +40,5 @@
 + 프레임 워크  : Spring FrameWork
 + 개발 툴 : Spring Tool Suite
 + 라이브러리 : JPA, Socket, Youtube Iframe
++ 배포 : AWS EC2
+
