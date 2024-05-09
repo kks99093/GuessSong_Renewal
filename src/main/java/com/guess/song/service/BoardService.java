@@ -67,7 +67,7 @@ public class BoardService {
 		}
 	}
 	
-	public int updSong(SongInfo songInfoParam) {
+	public String updSong(SongInfo songInfoParam) {
 		SongInfo songInfo = songRep.findBySongPk(songInfoParam.getSongPk());
 		String youtubeUrl = songInfoParam.getYoutubeUrl();
 		
@@ -80,7 +80,7 @@ public class BoardService {
 			int endIdx = youtubeUrl.indexOf("&");
 			youtubeUrl = youtubeUrl.substring(startIdx, endIdx);
 		}else {
-			return -1;
+			return "-1";
 		}
 		songInfo.setYoutubeUrl(youtubeUrl);
 		songInfo.setAnswer(Utils.htmlTagChg(songInfoParam.getAnswer()));
@@ -88,7 +88,7 @@ public class BoardService {
 		songInfo.setYear(songInfoParam.getYear());
 		songInfo.setCategory(songInfoParam.getCategory());
 		songRep.save(songInfo);
-		return 0;
+		return youtubeUrl;
 		
 	}
 	

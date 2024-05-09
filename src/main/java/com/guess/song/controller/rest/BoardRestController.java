@@ -27,8 +27,8 @@ public class BoardRestController {
 	}
 	
 	@PostMapping("rest/updSong")
-	public int updSong(@RequestBody SongInfo songInfo) {
-		int result = boardService.updSong(songInfo);
+	public String updSong(@RequestBody SongInfo songInfo) {
+		String result = boardService.updSong(songInfo);
 		return result;
 	}
 	

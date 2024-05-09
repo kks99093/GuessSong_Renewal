@@ -76,8 +76,9 @@ function updSongConFirm(songPk){
 			}else{
 				alert("노래를 업데이트 하였습니다.");
 				let thisBtn = $('#updSongBtn'+songPk);
-				thisBtn.attr("onclick", "updSong("+songPk+")")
+				thisBtn.attr("onclick", "updSong(this)")
 				thisBtn.html("수정");
+				$('#youtubeUrl'+songPk).val(resp);
 				let className = 'input'+songPk;
 				$('.'+className+'').addClass('readonly');											
 			}

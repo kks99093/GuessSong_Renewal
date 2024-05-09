@@ -69,10 +69,11 @@ public class BoardController {
 	}
 	
 	@PostMapping("/proc/insSong")	
-	public String insSong(SongInfoParam songInfoParam) {
-		
+	public String insSong(SongInfoParam songInfoParam, Model model) {		
 		boardService.insSong(songInfoParam);
-		return "redirect:/board/main";
+		model.addAttribute("msg", "노래 등록이 완료되었습니다.");
+		model.addAttribute("url", "/board/main");
+		return "/board/info";
 	}
 	
 
