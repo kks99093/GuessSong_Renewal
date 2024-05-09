@@ -40,10 +40,4 @@ public class SongInfo {
 	@Column
 	@CreationTimestamp
 	private Timestamp createTime;
-	
-	
-	//없애햐함
-	@ManyToOne(fetch = FetchType.LAZY)
-	private SongBoard songBoard;
-
 }

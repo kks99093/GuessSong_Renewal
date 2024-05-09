@@ -17,8 +17,7 @@
 
 <section>
   <!--for demo wrap-->
-  <h1>노래 등록</h1>
-  <form action="/proc/insSong" method="post" enctype="multipart/form-data">
+  <h1>노래 관리</h1>
     <div class="tbl-header">
     <table cellpadding="0" cellspacing="0" border="0">
       <thead>
@@ -59,10 +58,7 @@
       	</c:forEach>	       
       </tbody>
     </table>
-  </div>
-  <div><button class="submit_btn">등록</button></div>
-  		  
-  </form>  
+  </div>  		  
 </section>
 <div class="page_div">
 	<ul>

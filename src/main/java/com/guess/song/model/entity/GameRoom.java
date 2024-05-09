@@ -51,12 +51,6 @@ public class GameRoom {
 	@Column(nullable = false, length = 50)
 	private int headCount;
 	
-	
-	
-	//없앨거
-	@Column(nullable = false, length = 50)
-	private int boardPk;
-	
 	@Column
 	@CreationTimestamp
 	private Timestamp createTime;

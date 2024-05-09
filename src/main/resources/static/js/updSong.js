@@ -37,10 +37,6 @@ function delSong(thisBtn){
 		})
 	}
 	return;
-	
-	
-	
-	
 }
 
 function updSongConFirm(songPk){
@@ -84,8 +80,8 @@ function updSongConFirm(songPk){
 			}
 		})
 	}
-	
+}
 
-
-	
+function pageMove(pageNumber){
+	location.href = "/admin/updSong?page="+pageNumber;
 }
