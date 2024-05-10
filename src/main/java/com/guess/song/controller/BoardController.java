@@ -44,8 +44,7 @@ public class BoardController {
 	public String main(HttpServletRequest request) {
 		int count = StaticUtils.getCount() + 1;
 		StaticUtils.setCount(count);
-		String  userIp = request.getRemoteAddr();
-		log.info("접속 : " + userIp + " ," + count + " 번째");
+		log.info(count+"");
 		return "/board/main";
 	}
 	
