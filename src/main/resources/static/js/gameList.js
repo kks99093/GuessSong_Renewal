@@ -21,7 +21,7 @@ $(document).ready(function(){
 		roomNumber = $(this).attr("param1");
 		let passwordChkInput = $(this).attr("param2");
 		if(passwordChkInput == 1){
-			$('.pop_input_div').append('<div id="pop_password_div"><span>비밀번호 : </span><input type="password" id="password"><div>')
+			$('.pop_input_div').append('<div id="pop_password_div"><span class="pop_name_span">비밀번호 : </span><input class="input_name" type="password" id="password"><div>')
 		}
 	})
 	
