@@ -57,8 +57,7 @@ $(document).ready(function(){
 
 
 function wsOpen(){
-	console.log(location.host)
-	ws = new WebSocket("wss://" + location.host + "/chating/"+roomNumber+"/"+userName);	
+	ws = new WebSocket("ws://" + location.host + "/chating/"+roomNumber+"/"+userName);	
 	wsEvt();
 }
 	

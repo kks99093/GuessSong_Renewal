@@ -20,6 +20,9 @@ import com.guess.song.model.vo.RoomInfo;
 import com.guess.song.model.vo.RoomUserInfo;
 import com.guess.song.service.BoardService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class SocketUtils {
 	
@@ -27,53 +30,75 @@ public class SocketUtils {
 	private BoardService boardService;
 	
 	private ObjectMapper mapper = new ObjectMapper();
-	public boolean roomChk(String roomNumber, HashMap<String, RoomInfo> roomList) {
-		boolean flag = false;
-		int roomSize = roomList.size();
-		if(roomSize > 0 && roomList.get(roomNumber) != null) {
-			flag = true;
-		}
-		
-		return flag;
+	public boolean roomNotExist(String roomNumber, HashMap<String, RoomInfo> roomList) {
+		//roomList에 해당 roomNuber가 존재하는지 확인
+		return !roomList.containsKey(roomNumber);
+	}
+	
+	//방 생성 메서드
+	public void createNewRoom(WebSocketSession session, String roomNumber, String userName, Map<String, RoomInfo> roomList) {
+		RoomInfo newRoom = new RoomInfo();
+		roomList.put(roomNumber, newRoom);
+		HashMap<String, RoomUserInfo> userList = new HashMap<>();
+		newRoom.setUserList(userList);
+		joinRoom(session, true, roomNumber, userName, roomList);
+	}
+	
+	//방 입장 메서드	
+	public void joinExistingRoom(WebSocketSession session, String roomNumber, String userName, Map<String, RoomInfo> roomList) {
+		sendUserList(session, roomList.get(roomNumber).getUserList(), roomNumber); //방에 접속한 유저들의 정보를 나한테 보냄
+		joinRoom(session, false, roomNumber, userName, roomList); //나의 정보를 서버에 입력
+		sendMyInfo(session, roomList.get(roomNumber).getUserList(), userName); // 내 정보를 방에 접속한 유저들에게 보냄
 	}
 	
 	
-	public void joinRoom(WebSocketSession session, boolean joinChk, String roomNumberStr, String userName) {
-		//방정보, 유저정보 기본셋팅
-		RoomUserInfo roomUserInfo = new RoomUserInfo();		
-		//HashMap<String, RoomUserInfo> userList = new HashMap<String, RoomUserInfo>();
-		if(joinChk) { //songNumber가 0이 아니면 방 생성
-			RoomInfo roomInfo = new RoomInfo();
-			SocketHandler.roomList.put(roomNumberStr, roomInfo);
-			HashMap<String, RoomUserInfo> userList = new HashMap<String, RoomUserInfo>();
-			SocketHandler.roomList.get(roomNumberStr).setUserList(userList);			
-			roomInfo = boardService.getRoomInfo(roomNumberStr); // 방정보 기본셋팅
+	//방 입장시 공통적인 부분 처리
+	public void joinRoom(WebSocketSession session, boolean isNewRoom, String roomNumber, String userName, Map<String, RoomInfo> roomList) {
+		RoomInfo roomInfo = roomList.get(roomNumber);
+		RoomUserInfo roomUserInfo = new RoomUserInfo(session.getId(), userName, session);		
+		if(isNewRoom) {
+			boardService.getRoomInfo(roomNumber, roomInfo);
 			roomInfo.setReader(session.getId());
 			roomInfo.setNextSongChk(0);
-			roomInfo.setUserList(userList);
-			SocketHandler.roomList.put(roomNumberStr, roomInfo);
-			roomUserInfo.setColor("red");			
+			roomUserInfo.setColor("red");
 		}else {
-			HashMap<String, RoomUserInfo> userList = SocketHandler.getUserList(roomNumberStr);
-			String color = searchingColor(userList);
+			String color = searchingColor(roomInfo.getUserList());
 			roomUserInfo.setColor(color);
 		}
-		roomUserInfo.setReady(0);
-		roomUserInfo.setSession(session);
-		roomUserInfo.setUserName(userName);
-		roomUserInfo.setScore(0);
-		SocketHandler.roomList.get(roomNumberStr).getUserList().put(session.getId(), roomUserInfo);
-		//유저수 갱신
-		int headCount = SocketHandler.getUserList(roomNumberStr).size();		
-		boardService.updHeadCount(roomNumberStr, headCount, null);
+		roomInfo.getUserList().put(session.getId(), roomUserInfo);		
+		sendInitMessages(session, roomInfo);
+		
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public void sendInitMessages(WebSocketSession session, RoomInfo roomInfo) {		
+        try {
+        	String color = roomInfo.getUserList().get(session.getId()).getColor();
+    		JSONObject jsonObject = new JSONObject();
+    		jsonObject.put("color", color);
+    		jsonObject.put("type", "sessionId");
+    		jsonObject.put("sessionId", session.getId());
+    		jsonObject.put("reader", roomInfo.getReader());
+    		List<SongInfo> songInfoList = roomInfo.getSongList();
+    		int totalSongNum = songInfoList.size();
+            jsonObject.put("youtubeUrl", songInfoList.get(0).getYoutubeUrl());
+            jsonObject.put("totalSongNum", totalSongNum);
+			session.sendMessage(new TextMessage(jsonObject.toString()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	
 	public String searchingColor(HashMap<String, RoomUserInfo> userList) {
 		String[] colorList = {"red", "blue", "green", "gray", "black", "brown", "purple", "yellow"};
 		String color = "";
-		for(String key : userList.keySet()) {			
+		for(String key : userList.keySet()) {		
 			color = userList.get(key).getColor();
+			
 			for(int i = 0; i < colorList.length; i++) {
 				if(color.equals(colorList[i])) {
 					List<String> result = new ArrayList<>(Arrays.asList(colorList));

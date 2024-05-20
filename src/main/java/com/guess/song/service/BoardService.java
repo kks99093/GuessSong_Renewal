@@ -214,6 +214,15 @@ public class BoardService {
 		return roomInfo;
 	}
 	
+	//리팩토링
+	public void getRoomInfo(String roomNumberStr, RoomInfo roomInfo) {
+		int roomNumber = Integer.parseInt(roomNumberStr);
+		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);
+		List<SongInfo> songList = findSongList(gameRoom);
+		roomInfo.setReady(1);
+		roomInfo.setSongList(songList);		
+	}
+	
 	public void updHeadCount(String roomNumberStr, int headCount, String gameReader) {
 		int roomNumber = Integer.parseInt(roomNumberStr);
 		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);

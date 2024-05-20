@@ -30,11 +30,11 @@ public class SocketHandler extends TextWebSocketHandler{
 	@Autowired
 	private BoardService boardService;
 	@Autowired
-	private SocketUtils socketUtils = new SocketUtils();
+	private SocketUtils socketUtils;
 	
 	//데이터 저장을 하나로 합침
 	//RoomList > roomInfo > userList, songList ....	
-	public static HashMap<String, RoomInfo> roomList = new HashMap<String, RoomInfo>();
+	public final static HashMap<String, RoomInfo> roomList = new HashMap<>();
 	
 	
 	public static void putRoomUserInfo(RoomUserInfo roomUserInfo, String roomNumber) {
@@ -49,7 +49,6 @@ public class SocketHandler extends TextWebSocketHandler{
 		return roomList.get(roomNumber);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		
@@ -58,40 +57,15 @@ public class SocketHandler extends TextWebSocketHandler{
 		String url = session.getUri().toString(); // js에서 접속한 localhst/chating/방번호 의 주소가 담겨있음
 		String roomNumber = (url.split("/chating/")[1]).split("/")[0]; // chating뒤의 방번호만 잘라냄
 		String userName = URLDecoder.decode((url.split("/chating/")[1]).split("/")[1],"UTF-8");
-		boolean flag =  socketUtils.roomChk(roomNumber, roomList); // 방 유무 체크
+		boolean isNewRoom =  socketUtils.roomNotExist(roomNumber, roomList); // 방 유무 체크
 	
 		//방 입장시
-		if(flag == false) {//생성
-			//방 생성시 Map에다가 유저정보를 넣는처리 (songNumber 써서 메서드 하나로 생성 참가 다 처리할 수 있을듯?) 
-			socketUtils.joinRoom(session, true, roomNumber, userName);
+		if(isNewRoom) {//생성
+			socketUtils.createNewRoom(session, roomNumber, userName, roomList);
 			
 		}else {  //입장
-			//지금 입장한 사람에게 다른사람의 정보를 보냄 (방에 있는 유저의 리스트를 보냄)
-			HashMap<String, RoomUserInfo> userList = getUserList(roomNumber); 
-			socketUtils.sendUserList(session, userList, roomNumber);
-			
-			//지금 입장한 사람의 정보를 해당방의 userList에 추가
-			socketUtils.joinRoom(session, false, roomNumber, userName); 
-			socketUtils.sendMyInfo(session, userList, userName);
-			//이미 입장해 있는 다른 유저에게 본인 닉네임과 sessionId를 보냄 (메세지를 보낼때는 해당유저의 session을 가져와서 .sendMessage 메서드로 보냄)
-
+			socketUtils.joinExistingRoom(session, roomNumber, userName, roomList);
 		}
-		
-		
-		
-		// 내 정보(sessionId)를 클라이언트로 넘겨서 저장함(이후에 보내는 메세지가 누군지 구분하기 위함)
-		String color = getUserList(roomNumber).get(session.getId()).getColor();		
-		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("color", color);
-		jsonObject.put("type", "sessionId");
-		jsonObject.put("sessionId", session.getId());
-		jsonObject.put("reader", getRoomInfo(roomNumber).getReader());
-		List<SongInfo> songInfoList = getRoomInfo(roomNumber).getSongList();
-		int totalSongNum = songInfoList.size();
-		jsonObject.put("youtubeUrl", songInfoList.get(0).getYoutubeUrl());
-		jsonObject.put("totalSongNum", totalSongNum);
-		
-		session.sendMessage(new TextMessage(jsonObject.toString()));
 
 	}
 	
