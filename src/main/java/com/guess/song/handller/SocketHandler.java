@@ -1,5 +1,6 @@
 package com.guess.song.handller;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
@@ -55,8 +56,8 @@ public class SocketHandler extends TextWebSocketHandler{
 		super.afterConnectionEstablished(session);
 		
 		String url = session.getUri().toString(); // js에서 접속한 localhst/chating/방번호 의 주소가 담겨있음
-		String roomNumber = (url.split("/chating/")[1]).split("/")[0]; // chating뒤의 방번호만 잘라냄
-		String userName = URLDecoder.decode((url.split("/chating/")[1]).split("/")[1],"UTF-8");
+		String roomNumber = parseRoomNumberFromUrl(url); // chating뒤의 방번호만 잘라냄
+		String userName = parseUserNameFromUrl(url);
 		boolean isNewRoom =  socketUtils.roomNotExist(roomNumber, roomList); // 방 유무 체크
 	
 		//방 입장시
@@ -72,123 +73,15 @@ public class SocketHandler extends TextWebSocketHandler{
 	
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		// TODO Auto-generated method stub
 		JSONObject jsonObject = Utils.JsonToObjectParser(message.getPayload());
 		String roomNumber = (String)jsonObject.get("roomNumber");
 		String type = (String)jsonObject.get("type");
-		String youtubeUrl = "";
 		RoomInfo roomInfo = roomList.get(roomNumber);
-		
-		//HashMap<String, Object> userList = roomUserInfo.get(roomNumber);
-		int readyChk = 0;
-		String beforeAnswer = "";
-		
-		switch(type) {
-			case "gameStart" :
-				readyChk = readyChk(roomNumber);
-				if(readyChk == 1) { 
-					roomInfo.setCurrentSong(0);
-				}
-				jsonObject.put("readyChk", readyChk);
-				break;
-			case "skipSong" :
-				beforeAnswer = socketUtils.getBeforeAnswer(roomInfo);
-				int skipChk = socketUtils.skipSong(roomInfo, roomNumber);
-				jsonObject.put("skipChk", skipChk);
-				if(skipChk == 1) {
-					youtubeUrl = socketUtils.nextYoutubeUrl(roomInfo);
-					jsonObject.put("youtubeUrl", youtubeUrl);
-					jsonObject.put("beforeAnswer", beforeAnswer);
-				}else if(skipChk == -1){
-					jsonObject.put("skipChk", skipChk);
-				}else {
-					int skipCount = roomInfo.getSkipCount();
-					jsonObject.put("skipCount", skipCount);
-				}
-				
-				break;
-			case "ready":
-				userReady(roomNumber, 1, session.getId());
-				jsonObject.put("sessionId", session.getId());
-				break;
-			case "message" :
-				String answerReady = (String)jsonObject.get("answerReady");
-				if(roomInfo.getCurrentSong() != null && answerReady.equals("1")) {
-					String userMsg = ((String)jsonObject.get("msg")).replaceAll("\\s", "");
-					List<SongInfo> songList = roomInfo.getSongList();
-					int currentSong = roomInfo.getCurrentSong();
-					beforeAnswer = songList.get(currentSong).getAnswer();
-					int answerChk = socketUtils.answerChk(songList, currentSong, userMsg, session.getId(), roomInfo.getUserList());
-					if(answerChk == 1) {
-						int score = roomInfo.getUserList().get(session.getId()).getScore();
-						jsonObject.put("beforeAnswer", beforeAnswer);
-						jsonObject.put("score", score);
-					}
-					String nextYoutubeUrl = socketUtils.nextYoutubeUrl(roomInfo);
-					jsonObject.put("youtubeUrl", nextYoutubeUrl);
-					jsonObject.put("answerChk", answerChk);
-					
-				}
-				String sessionId = (String) jsonObject.get("sessionId");
-				String userName = roomInfo.getUserList().get(sessionId).getUserName();								
-				String userColor = roomInfo.getUserList().get(sessionId).getColor();
-				jsonObject.put("color", userColor);
-				jsonObject.put("sessionId", session.getId());
-				jsonObject.put("userName", userName);
-				break;
-			case "readyCencel" :
-				userReady(roomNumber, -1, session.getId());
-				jsonObject.put("sessionId", session.getId());
-				break;
-			case "nextSongChk" :
-				int nextSongChk = nextSongChk(roomNumber);
-				int currentSong = roomInfo.getCurrentSong();
-				jsonObject.put("currentSong", currentSong);
-				jsonObject.put("nextSongChk", nextSongChk);
-				break;
-			case "resultSong" :
-				int resultChk = socketUtils.resultSong(roomInfo, roomNumber);
-				if(jsonObject.get("answerToEnd") != null &&(Boolean)jsonObject.get("answerToEnd")) {
-					resultChk = 1;
-				}
-				jsonObject.put("resultChk", resultChk);
-				if(resultChk == 0) {
-					int resultCount = roomInfo.getResultCount();					
-					jsonObject.put("resultCount", resultCount);
-				}else {
-					beforeAnswer = socketUtils.getBeforeAnswer(roomInfo);
-					List<HashMap<String, String>> endUserList = socketUtils.endGameUserList(roomInfo.getUserList(), roomNumber);					
-					jsonObject.put("userList", endUserList);
-					jsonObject.put("beforeAnswer", beforeAnswer);
-				}
-				break;
-			
-		}
-		
-		//HashMap<String, HashMap<String, Object>> userList = (HashMap<String, HashMap<String, Object>>) roomList.get(roomNumber).get("userList");
-		if(type.equals("gameStart") && readyChk == 0) {
-			session.sendMessage(new TextMessage(jsonObject.toString()));
-		}else {
-			//userList를 돌며 session을 가져와서 메세지를 보냄
-			for(String key : roomInfo.getUserList().keySet()) {
-				WebSocketSession wss = roomInfo.getUserList().get(key).getSession(); 
-				
-				try {
-					synchronized(wss) {
-						wss.sendMessage(new TextMessage(jsonObject.toString()));
-					}
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		
-
-		super.handleTextMessage(session, message);
+		JSONObject response = socketUtils.handleMessageType(type, jsonObject, roomInfo, session.getId());
+		socketUtils.broadcastMessage(response, roomInfo, session);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -218,9 +111,10 @@ public class SocketHandler extends TextWebSocketHandler{
 		//방에 사람이 0명이면 게임방 삭제
 		userList = getUserList(roomNumber);
 		if(userList.size() < 1 && !roomNumber.equals("")) {
-			RoomInfo roomInfo = getRoomInfo(roomNumber); 
+			RoomInfo roomInfo = getRoomInfo(roomNumber);
+			int roomNumberInt = Integer.parseInt(roomNumber);
 			if(roomInfo.getCurrentSong() == null) {
-				boardService.delGameRoom(roomNumber);
+				boardService.delGameRoom(roomNumberInt);
 			}
 		}else {
 			//인원수 갱신
@@ -270,55 +164,21 @@ public class SocketHandler extends TextWebSocketHandler{
 	//ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ Not Override 메서드 ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 	
 	
-	
-
-	
-	public void userReady(String roomNumber, int count, String sessionId) {
-		int readyHead = roomList.get(roomNumber).getReady() + count;
-		roomList.get(roomNumber).setReady(readyHead);
-
-		if(count == -1) {	
-			roomList.get(roomNumber).getUserList().get(sessionId).setReady(0);
-		}else {
-			roomList.get(roomNumber).getUserList().get(sessionId).setReady(1);
-		}
-
-	}
-	
-	public int readyChk (String roomNumber) {
-		int readyChk = 0;
-		int readyHead = roomList.get(roomNumber).getReady();		
-		int headCount = roomList.get(roomNumber).getUserList().size();		
-		if(readyHead == headCount) {
-			readyChk = 1;
-			//게임이 시작됐으면 게임목록에서 이 게임방 삭제
-			boardService.delGameRoom(roomNumber);
-		}
-		return readyChk;
-	}
-	
-	
-	
-
-	
-
-	
-	public int nextSongChk(String roomNumber) {
-		int nextSongChk = 0;
-		RoomInfo roomInfo = getRoomInfo(roomNumber);
-			
-		roomInfo.setNextSongChk(roomInfo.getNextSongChk()+1);
+	private String parseRoomNumberFromUrl(String url) {
+		return (url.split("/chating/")[1]).split("/")[0];
 		
-		if(roomInfo.getNextSongChk() == roomInfo.getUserList().size()) {
-			int currentSong = roomInfo.getCurrentSong();
-			roomInfo.setCurrentSong(currentSong+1);
-			nextSongChk = 1;
-			roomInfo.setNextSongChk(0);
-		}
-		return nextSongChk;
 	}
 	
-	
+	private String parseUserNameFromUrl(String url) {
+		String userName = (url.split("/chating/")[1]).split("/")[1];
+		try {
+			userName =  URLDecoder.decode(userName,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return userName;
+	}
 
 	
 	

@@ -93,8 +93,8 @@ function wsEvt() {
 				case 'ready':
 					receiveReady(jsonObject);
 					break;
-				case 'readyCencel' :
-					receiveReadyCencel(jsonObject);
+				case 'readyCancel' :
+					receiveReadyCancel(jsonObject);
 					break;
 				case 'nextSongChk' :
 					nextSongChk(jsonObject);
@@ -283,7 +283,7 @@ function onYouTubeIframeAPIReady() {
 
 function ready(){
 	$('#readyGame_div').remove();
-	$('.gameBoard_songInfo').prepend('<div class="startGame_div disable_evt disable_cursor" id="readyCancel_div" onclick="readyCencel()"><span id="readyCancel_span">레디 취소</span></div>')
+	$('.gameBoard_songInfo').prepend('<div class="startGame_div disable_evt disable_cursor" id="readyCancel_div" onclick="readyCancel()"><span id="readyCancel_span">레디 취소</span></div>')
 	setTimeout(()=>{
 		$('#readyCancel_div').removeClass('disable_evt');
 		$('#readyCancel_div').removeClass('disable_cursor');
@@ -299,7 +299,7 @@ function receiveReady(jsonObject){
 	$('#'+jsonObject.sessionId+'_div').append('<div class="ready_div" id="'+jsonObject.sessionId+'_ready_div">READY</div>')
 }
 
-function readyCencel(){
+function readyCancel(){
 	$('#readyCancel_div').remove();
 	$('.gameBoard_songInfo').prepend('<div class="startGame_div disable_evt disable_cursor" id="readyGame_div" onclick="ready()"><span id="readyGame_span">레디</span></div>')
 	setTimeout(()=>{
@@ -308,13 +308,13 @@ function readyCencel(){
 	}, 2000);
 	
 		var payload = {
-			type : 'readyCencel',
+			type : 'readyCancel',
 			roomNumber : $('#roomNumber').val()
 	}
 	ws.send(JSON.stringify(payload));
 }
 
-function receiveReadyCencel(jsonObject){
+function receiveReadyCancel(jsonObject){
 	$('#'+jsonObject.sessionId+'_ready_div').remove();
 	
 }

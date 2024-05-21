@@ -146,8 +146,7 @@ public class BoardService {
 		return gameRoomList;
 	}
 	
-	public void delGameRoom(String roomNumberParam) {
-		int roomNumber = Integer.parseInt(roomNumberParam);
+	public void delGameRoom(int roomNumber) {
 		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);
 		gameRoomRep.delete(gameRoom);
 	}
