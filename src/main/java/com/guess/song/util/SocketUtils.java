@@ -43,23 +43,23 @@ public class SocketUtils {
 		int roomNumberInt = Integer.parseInt(roomNumber);
 		newRoom.setRoomPk(roomNumberInt);
 		newRoom.setUserList(userList);
-		joinRoom(session, true, roomNumber, userName, roomList);
+		joinRoom(session, true, newRoom, userName);
 	}
 	
 	//방 입장 메서드	
-	public void joinExistingRoom(WebSocketSession session, String roomNumber, String userName, Map<String, RoomInfo> roomList) {
-		sendUserList(session, roomList.get(roomNumber).getUserList(), roomNumber); //방에 접속한 유저들의 정보를 나한테 보냄
-		joinRoom(session, false, roomNumber, userName, roomList); //나의 정보를 서버에 입력
-		sendMyInfo(session, roomList.get(roomNumber).getUserList(), userName); // 내 정보를 방에 접속한 유저들에게 보냄
+	public void joinExistingRoom(WebSocketSession session, RoomInfo roomInfo, String userName) {
+		sendUserList(session, roomInfo); //방에 접속한 유저들의 정보를 나한테 보냄
+		joinRoom(session, false, roomInfo, userName); //나의 정보를 서버에 입력
+		sendMyInfo(session, roomInfo, userName); // 내 정보를 방에 접속한 유저들에게 보냄
 	}
 	
 	
 	//방 입장시 공통적인 부분 처리
-	public void joinRoom(WebSocketSession session, boolean isNewRoom, String roomNumber, String userName, Map<String, RoomInfo> roomList) {
-		RoomInfo roomInfo = roomList.get(roomNumber);
+	public void joinRoom(WebSocketSession session, boolean isNewRoom, RoomInfo roomInfo, String userName) {
+
 		RoomUserInfo roomUserInfo = new RoomUserInfo(session.getId(), userName, session);		
 		if(isNewRoom) {
-			boardService.getRoomInfo(roomNumber, roomInfo);
+			boardService.getRoomInfo(roomInfo.getRoomPk(), roomInfo);
 			roomInfo.setReader(session.getId());
 			roomInfo.setNextSongChk(0);
 			roomUserInfo.setColor("red");
@@ -95,14 +95,14 @@ public class SocketUtils {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void sendUserList(WebSocketSession session, HashMap<String, RoomUserInfo> userListParam, String roomNumber) {
+	public void sendUserList(WebSocketSession session, RoomInfo roomInfo) {
 		List<HashMap<String, String>> userList = new ArrayList<HashMap<String, String>>();
 		
-		for(String key : userListParam.keySet()) {
+		for(String key : roomInfo.getUserList().keySet()) {
 			RoomUserInfo roomUserInfo = new RoomUserInfo();
-			String userName = userListParam.get(key).getUserName();
-			String userColor = userListParam.get(key).getColor(); 			
-			int ready = userListParam.get(key).getReady();
+			String userName = roomInfo.getUserList().get(key).getUserName();
+			String userColor = roomInfo.getUserList().get(key).getColor(); 			
+			int ready = roomInfo.getUserList().get(key).getReady();
 			roomUserInfo.setUserName(userName);
 			roomUserInfo.setColor(userColor);
 			roomUserInfo.setReady(ready);
@@ -118,7 +118,7 @@ public class SocketUtils {
 			
 		}
 		
-		String reader = SocketHandler.getRoomInfo(roomNumber).getReader();
+		String reader = roomInfo.getReader();
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("type", "join");
 		jsonObject.put("reader", reader);
@@ -135,10 +135,10 @@ public class SocketUtils {
 	
 	// 내 정보를 방의 사람들에게 보냄
 	@SuppressWarnings("unchecked")
-	public void sendMyInfo(WebSocketSession session, HashMap<String, RoomUserInfo> userList, String userName) {		
+	public void sendMyInfo(WebSocketSession session, RoomInfo roomInfo, String userName) {		
 		
 		RoomUserInfo roomUserInfo = new RoomUserInfo();
-		String userColor = userList.get(session.getId()).getColor();
+		String userColor = roomInfo.getUserList().get(session.getId()).getColor();
 		roomUserInfo.setColor(userColor);
 		roomUserInfo.setSessionId(session.getId());
 		roomUserInfo.setUserName(userName);
@@ -155,11 +155,11 @@ public class SocketUtils {
 		
 		
 		jsonObject.put("color", userColor);
-		for(String key : userList.keySet()) {
+		for(String key : roomInfo.getUserList().keySet()) {
 			if(key.equals(session.getId())) {
 				continue;
 			}
-			WebSocketSession wss = userList.get(key).getSession();;
+			WebSocketSession wss = roomInfo.getUserList().get(key).getSession();;
 											
 			try {
 				wss.sendMessage(new TextMessage(jsonObject.toString()));
@@ -504,6 +504,86 @@ public class SocketUtils {
 	}
 
 	
+	public void removeUserFromRoom(String sessionId, HashMap<String, RoomInfo> roomList) {
+		String leftUserName = "";
+		String color = "";
+		for(RoomInfo roomInfo : roomList.values()) {
+			if(roomInfo.getUserList().containsKey(sessionId)) {
+				//나간 유저의 정보를 방의 사람들에게 보내주기 위해 삭제 하기 전에 미리 정보를 받아놓음
+				leftUserName = roomInfo.getUserList().get(sessionId).getUserName();
+				color = roomInfo.getUserList().get(sessionId).getColor();
+				roomInfo.getUserList().remove(sessionId);
+				if(roomInfo.getUserList().size() <1) {
+					//방에 아무도 없으면 방 삭제
+					delGameRoom(roomInfo);
+					roomList.remove(roomInfo.getRoomPk()+"");
+				}else {
+					//인원수 갱신
+					String readerSessionId = updHeadCount(roomInfo, sessionId);
+					handlerUserExit(roomInfo, leftUserName, color, readerSessionId, sessionId);
+					
+					
+					
+				}
+				
+				
+				break;
+			}
+		}
+	}
+	
+	
+	public void delGameRoom(RoomInfo roomInfo) {
+		//CurrentSong이 null이 아니면 게임이 이미 시작해서 이미 DB에서 방이 삭제된 상태라 조건을 넣어줌
+		if(roomInfo.getCurrentSong() == null) {
+			boardService.delGameRoom(roomInfo.getRoomPk());
+		}
+	}
+	
+	
+	public String updHeadCount(RoomInfo roomInfo, String sessionId) {
+		int headCount = roomInfo.getUserList().size();
+		
+		//나간 사람이 방장일 경우 userList의 제일 앞에 있는 사람으로 방장을 교체
+		String gameReader = roomInfo.getReader();
+		String readerSeesionId = null;
+		if(sessionId.equals(gameReader)) {
+			for(String key : roomInfo.getUserList().keySet()) {
+				gameReader = roomInfo.getUserList().get(key).getUserName();
+				roomInfo.setReader(key);
+				readerSeesionId = key;
+				break;
+			}
+			boardService.updHeadCount(roomInfo.getRoomPk(), headCount, gameReader);
+			roomInfo.setReady(1);
+		}else {
+			gameReader = null;
+			boardService.updHeadCount(roomInfo.getRoomPk(), headCount, gameReader);
+		}
+		
+		return readerSeesionId;
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void handlerUserExit(RoomInfo roomInfo, String leftUserName, String color, String readerSessionId, String sessionId) {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("type", "left");
+		jsonObject.put("sessionId", sessionId);
+		jsonObject.put("reader", readerSessionId);
+		jsonObject.put("leftUser", leftUserName);
+		jsonObject.put("color", color);
+		for(String key : roomInfo.getUserList().keySet()) {
+			WebSocketSession wss = roomInfo.getUserList().get(key).getSession();
+			try {
+				wss.sendMessage(new TextMessage(jsonObject.toString()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
 	
 	
 }

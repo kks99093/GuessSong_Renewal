@@ -190,7 +190,7 @@ public class BoardService {
 		
 		String roomNumber = gameRoomParam.getRoomPk()+"";
 		String userNameParam = userInfo.getName();
-		HashMap<String, RoomUserInfo> userList = SocketHandler.getUserList(roomNumber);
+		HashMap<String, RoomUserInfo> userList = SocketHandler.roomList.get(roomNumber) .getUserList();
 		for(String key : userList.keySet()) {
 			String userName = userList.get(key).getUserName();
 			if(userNameParam.equals(userName)) {
@@ -214,17 +214,16 @@ public class BoardService {
 	}
 	
 	//리팩토링
-	public void getRoomInfo(String roomNumberStr, RoomInfo roomInfo) {
-		int roomNumber = Integer.parseInt(roomNumberStr);
+	public void getRoomInfo(int roomNumber, RoomInfo roomInfo) {
 		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);
 		List<SongInfo> songList = findSongList(gameRoom);
 		roomInfo.setReady(1);
 		roomInfo.setSongList(songList);		
 	}
 	
-	public void updHeadCount(String roomNumberStr, int headCount, String gameReader) {
-		int roomNumber = Integer.parseInt(roomNumberStr);
+	public void updHeadCount(int roomNumber, int headCount, String gameReader) {
 		GameRoom gameRoom = gameRoomRep.findByRoomPk(roomNumber);
+		//gameRoom null 체크 하는 이유 : 게임이 이미 시작한 경우는 DB에 해당방이 없기에 밑의 작업을 전부 스킵하기 위함
 		if(gameRoom != null && gameReader != null) {
 			gameRoom.setReader(gameReader);
 		}
