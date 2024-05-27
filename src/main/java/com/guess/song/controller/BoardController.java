@@ -42,10 +42,7 @@ public class BoardController {
 	
 	@GetMapping("/board/main")
 	public String main(HttpServletRequest request) {
-		int count = StaticUtils.getCount() + 1;
-		StaticUtils.setCount(count);
-		log.info(count+"");
-		return "/board/main";
+		return "board/main";
 	}
 	
 	@PostMapping("/board/main")
@@ -57,14 +54,14 @@ public class BoardController {
 
 	@GetMapping("/admin/regSong")
 	public String regSong(Model model) {		
-		return "/board/regSong";
+		return "board/regSong";
 	}
 	
 	@GetMapping("/admin/updSong")
 	public String updSong(@PageableDefault(sort = {"answer"}, direction = Direction.DESC, size = 10) Pageable pageable, Model model) {
 		Page<SongInfo> songInfoList = boardService.getSongInfoList(pageable);
 		model.addAttribute("songInfoList", songInfoList);
-		return "/board/updSong";
+		return "board/updSong";
 	}
 	
 	@PostMapping("/proc/insSong")	
@@ -72,7 +69,7 @@ public class BoardController {
 		boardService.insSong(songInfoParam);
 		model.addAttribute("msg", "노래 등록이 완료되었습니다.");
 		model.addAttribute("url", "/board/main");
-		return "/board/info";
+		return "board/info";
 	}
 	
 
@@ -84,7 +81,7 @@ public class BoardController {
 
 		model.addAttribute("userInfo", userInfo);
 		model.addAttribute("gameRoom", gameRoom);
-		return "/board/gameBoard";
+		return "board/gameBoard";
 		
 	}
 	
@@ -94,27 +91,15 @@ public class BoardController {
 		model.addAttribute("startIdx", (int)(gameRoomList.getPageable().getPageNumber()/10)*10);
 		model.addAttribute("gameRoomList", gameRoomList);
 	
-		return "/board/gameList";
+		return "board/gameList";
 	}
 	
 	@PostMapping("/board/info")
 	public String infoBoard(Model model) {
 		
-		return "/board/info";
+		return "board/info";
 	}
 
-	
-	// 세션 강제 부여	
-//		@PostMapping("/board/main")
-//		public String main(@AuthenticationPrincipal PrincipalDetails principalDetails,UserInfo userInfo, HttpSession session) {
-//			UserDetails userDetail = principalDetailService.loadUserByUsername(userInfo.getUsername());
-//			Authentication authentication = 
-//			new UsernamePasswordAuthenticationToken(userDetail, userDetail.getPassword(), userDetail.getAuthorities());
-//			SecurityContext securityContext = SecurityContextHolder.getContext();
-//			securityContext.setAuthentication(authentication);
-//			session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-//			
-//			return "redirect:/board/main";
-//		}
+
 
 }

@@ -13,7 +13,7 @@ import com.guess.song.handller.LoginFailUreHandller;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig{
+public class SecurityConfig {
 
     @Bean
     BCryptPasswordEncoder encodePwd() {
@@ -24,7 +24,6 @@ public class SecurityConfig{
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	http.cors().and().csrf().disable();
-    	
         http.authorizeHttpRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
@@ -33,18 +32,16 @@ public class SecurityConfig{
                         .loginPage("/login")
                         .loginProcessingUrl("/auth/loginProc")
                         .defaultSuccessUrl("/")
-                        .failureHandler(loginFailHandller()));
-        
-        
-        http.logout(logout -> logout
-                .invalidateHttpSession(true)
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/"));
+                        .failureHandler(loginFailHandller()))
+                .logout(logout -> logout
+                        .invalidateHttpSession(true)
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/"));
         return http.build();
     }
-    
-	@Bean
-	public AuthenticationFailureHandler loginFailHandller() {
+
+    @Bean
+    AuthenticationFailureHandler loginFailHandller() {
 		return new LoginFailUreHandller();
 	}
 	

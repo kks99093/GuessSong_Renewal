@@ -94,7 +94,7 @@ public class BoardService {
 	
 	
 	public int delSong(SongInfo songInfoParam) {
-		int result = songRep.delSong(songInfoParam.getSongPk());		
+		int result = songRep.deleteBySongPk(songInfoParam.getSongPk());		
 		return result;
 	}
 	
@@ -151,26 +151,6 @@ public class BoardService {
 		gameRoomRep.delete(gameRoom);
 	}
 	
-	
-	public int delSong(int songBoardPk) {
-		int result = 0;
-		List<SongInfo> songInfoList = songRep.findByBoardPk(songBoardPk);
-		if(songInfoList != null) {
-			try {
-				for(SongInfo songInfo : songInfoList) {
-					songRep.delete(songInfo);
-				}
-				result = 1;
-			}catch(Exception e) {
-				e.printStackTrace();
-				result = 0;
-			}
-		}else {
-			result =1;
-		}
-		
-		return result;
-	}
 	
 
 	//게임방 비밀번호, 인원, 중복아이디 체크
@@ -238,9 +218,9 @@ public class BoardService {
 	public int songInfoChk(GameRoom gameRoom) {
 		int result = 0;
 		if(gameRoom.getCategory().equals("all")) {
-			result = songRep.songInfoChk(gameRoom.getBeforeYears(), gameRoom.getAfterYears());
+			result = songRep.countByYearBetween(gameRoom.getBeforeYears(), gameRoom.getAfterYears());
 		}else {
-			result = songRep.songInfoChk(gameRoom.getCategory(), gameRoom.getBeforeYears(), gameRoom.getAfterYears());
+			result = songRep.countByCategoryAndYearBetween(gameRoom.getCategory(), gameRoom.getBeforeYears(), gameRoom.getAfterYears());
 		}
 		 
 		if(result > gameRoom.getCount()) {

@@ -1,7 +1,7 @@
 package com.guess.song.auth;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -14,7 +14,7 @@ import lombok.Data;
 
 @Data
 public class PrincipalDetails implements UserDetails, OAuth2User {
-	
+
 	private UserInfo userInfo;
 	
 	public PrincipalDetails(UserInfo userInfo) {
@@ -23,15 +23,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Collection<GrantedAuthority> collect = new ArrayList<>();
-		collect.add(new GrantedAuthority() {
-			
-			@Override
-			public String getAuthority() {
-				return userInfo.getRole();
-			}
-		});
-		return collect;
+		return List.of(() -> userInfo.getRole());
 	}
 	
 	

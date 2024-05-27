@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.guess.song.model.entity.UserInfo;
 import com.guess.song.repository.UserInfoRepository;
@@ -16,6 +17,7 @@ public class PrincipalDetailsService implements UserDetailsService{
 	private UserInfoRepository userInfoRep;
 	
 	@Override
+	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserInfo userEntity = userInfoRep.findByUsername(username);
 		if(userEntity == null) {
