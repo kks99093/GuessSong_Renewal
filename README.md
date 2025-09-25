@@ -1,7 +1,7 @@
 ## GuessSong
 #### 2024. 4. 28 ~ 5. 10
 #### WebSocket을 이용해서 만든 노래맞추기 게임 입니다.
-##### <a href="http://www.guessthesong.site" target="_blank">게임하러 가기</a>
+##### <a href="http://www.guesssong.site" target="_blank">게임하러 가기</a>
 ##### 리뉴얼 전 : https://github.com/kks99093/GuessSong_Before
 ###### 변경사항
 - 유저가 직접 노래리스트 등록 => 관리자가 노래 등록
